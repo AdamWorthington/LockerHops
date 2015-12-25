@@ -14,6 +14,35 @@ public class Order {
 		this.cost 		= cost;
 	}
 	
+	/*
+	 * Indicates if the fields in the order contain values that can be correct
+	 */
+	public boolean isWellFormed() {
+		if (this.restaurant == null || this.restaurant == "") {
+			System.out.println("Order has bad restaurant");
+			return false;
+		}
+		
+		if (this.items == null) {
+			System.out.println("Order has no items");
+			return false;
+		}
+		
+		for (String item : this.items) {
+			if (item == null || item == "") {
+					System.out.println("Order has malformed item");
+					return false;
+			}
+		}
+		
+		if (this.cost <= 0.00) {
+			System.out.println("Order has malformed cost (" + this.cost + ")");
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public String getRestaurant() {
 		return this.restaurant;
 	}
