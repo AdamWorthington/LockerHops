@@ -21,7 +21,6 @@ public class DatabaseAccessors {
 	static final String username 	= "LockerHops";
 	static final String password 	= "!25spoHrekcoL?9";
 	static final String driver 		= "com.mysql.jdbc.Driver";
-	
 	static final String jdbcUrl 	= "jdbc:mysql://" + url + "/" + dbName + "?user=" + username + "&password=" + password;
 	
 	/*
@@ -73,22 +72,24 @@ public class DatabaseAccessors {
 			
 			//Prepared statements are used to prevent SQL injection
 			System.out.print("Setting statement values in placeOrder: ");
-			stmt.setString(0, order.getRestaurant());
-			System.out.print("0 ");
-			stmt.setString(1, items);
+			stmt.setString(1, order.getRestaurant());
 			System.out.print("1 ");
-			stmt.setFloat (2, order.cost);
-			System.out.println("2");
+			stmt.setString(2, items);
+			System.out.print("2 ");
+			stmt.setDouble (3, order.getCost());
+			System.out.println("3");
 			
 			//Execute the statement to insert this order into the database
 			System.out.print("Executing statement: ");
 			int ret = stmt.executeUpdate();
 			
+			stmt.close();
+			
 			//Ret is the ID of this order as assigned by the database
 			if (ret >= 0) {
 				//This allows us to link the order in the DB to the order object itself
-				order.id = ret;
-				System.out.println("SUCCESS");
+				order.setID(ret);
+				System.out.println("SUCCESS (" + ret + ")");
 				return true;
 			}
 		}
@@ -160,10 +161,10 @@ public class DatabaseAccessors {
 			
 			//Prepared statements are used to prevent SQL injection
 			System.out.print("Setting statement values in placeOrder: ");
-			stmt.setFloat(0,  order.cost);
-			System.out.println("0 ");
-			stmt.setInt(1,  order.id);
-			System.out.println("1");
+			stmt.setDouble(1,  order.cost);
+			System.out.println("1 ");
+			stmt.setInt(2,  order.id);
+			System.out.println("2");
 			
 			//Execute the statement to insert this order into the database
 			System.out.print("Executing statement: ");
