@@ -83,15 +83,20 @@ public class DatabaseAccessors {
 			System.out.print("Executing statement: ");
 			int ret = stmt.executeUpdate();
 			
-			stmt.close();
+			ResultSet rs = stmt.getGeneratedKeys();
+			rs.next();
+
 			
-			//Ret is the ID of this order as assigned by the database
-			if (ret >= 0) {
-				//This allows us to link the order in the DB to the order object itself
-				order.setID(ret);
-				System.out.println("SUCCESS (" + ret + ")");
+			int orderID = rs.getInt(1);
+			
+			if(orderID > 0) {
+			//This allows us to link the order in the DB to the order object itself
+				order.setID(orderID);
+				System.out.println("SUCCESS (Order ID:" + orderID + ")");
 				return true;
 			}
+			
+			stmt.close();
 		}
 		catch(SQLException e) {
 			System.out.println("Unable to create and execute statement (placeOrder):    ");
@@ -105,11 +110,13 @@ public class DatabaseAccessors {
 	}
 	
 	/*
-	 * Update in the database the time an order was placed in a locker
+	 * Update in the database the time an order
 	 * @param order: the order entry to update.
+	 * @param datetime: the datetime value when the item was handled
+	 * @param type: 0 for time placed in locker, 1 for time picked up
 	 * Returns true if update was successful, false otherwise
 	 */
-	public static boolean updateTimePlacedInLocker(Order order, String datetime) {
+	public static boolean updateOrderTime(Order order, String datetime, int type) {
 		//An order ID of -1 indicates it has not yet been inserted into the DB
 		if (order.id == -1) {
 			System.out.println("Order has not been placed in database yet");
@@ -123,7 +130,7 @@ public class DatabaseAccessors {
 		
 		//Validate datetime
 		if (datetime == null || datetime == "") {
-			System.out.println("Invalid DateTime in updateTimePlacedInLocker");
+			System.out.println("Invalid DateTime in updateOrderTime (type: " + type + ")");
 			return false;
 		}
 		
@@ -134,35 +141,45 @@ public class DatabaseAccessors {
 		Connection			conn	= null;
 		
 		//The SQL query to update this order's information
-		String 				query 	= "UPDATE Orders SET TimePlacedInLocker = ? WHERE Identifier = ?;";
+		String 				query;
+		if (type == 0) {
+			query = "UPDATE Orders SET TimePlacedInLocker = ? WHERE Identifier = ?;";
+		}
+		else if (type == 1) {
+			query = "UPDATE Orders SET TimePickedUp = ? WHERE Identifier = ?;";
+		}
+		else {
+			System.out.println("Invalid type for updateOrderTime (" + type + ")");
+			return false;
+		}
 		
 		//Check we can get the driver
 		try {
-		    System.out.print("Checking driver in updateTimePlacedInLocker: ");
+		    System.out.print("Checking driver in updateOrderTime (type: " + type + "): ");
 		    Class.forName(driver);
 		    System.out.println("SUCCESS");
 		} 
 		catch (ClassNotFoundException e) {
-			System.out.println("Cannot find the driver in the classpath (updateTimePlacedInLocker):    ");
+			System.out.println("Cannot find the driver in the classpath (updateOrderTime (type: " + type + ")):    ");
 		    e.printStackTrace();
 		    return false;
 		}
 				
 		try {
 			//Acquire a connection using the specified driver
-			System.out.print("Creating connection in updateTimePlacedInLocker: ");
+			System.out.print("Creating connection in updateOrderTime (type: " + type + "): ");
 			conn = DriverManager.getConnection(jdbcUrl);
 			System.out.println("SUCCESS");
 					
 			//
-			System.out.print("Preparing statement in updateTimePlacedInLocker: ");
+			System.out.print("Preparing statement in updateOrderTime (type: " + type + "): ");
 			stmt = conn.prepareStatement(query);
 			System.out.println("SUCCESS");
 			
 			//Prepared statements are used to prevent SQL injection
-			System.out.print("Setting statement values in placeOrder: ");
-			stmt.setDouble(1,  order.cost);
-			System.out.println("1 ");
+			System.out.print("Setting statement values in updateOrderTime (type: " + type + "): ");
+			stmt.setString(1,  datetime);
+			System.out.print("1 ");
 			stmt.setInt(2,  order.id);
 			System.out.println("2");
 			
@@ -170,34 +187,20 @@ public class DatabaseAccessors {
 			System.out.print("Executing statement: ");
 			int ret = stmt.executeUpdate();
 			
-			//Ret is the ID of this order as assigned by the database
+			//
 			if (ret != 0) {
 				System.out.println("SUCCESS");
 				return true;
 			}
 		}
 		catch(SQLException e) {
-			System.out.println("Unable to create and execute statement (updateTimePlacedInLocker):    ");
+			System.out.println("Unable to create and execute statement (updateOrderTime (type: " + type + ")):    ");
 			e.printStackTrace();
 			return false;
 		}
 		
 		//This is only reached if there was no value assigned to the insertion, meaning it failed, or an exception occured
 		System.out.println("FAILURE");
-		return false;
-	}
-
-	/*
-	 * Update in the database the time an order was picked up
-	 * @param order: the order entry to update.
-	 * Returns true if update was successful, false otherwise
-	 */
-	public static boolean updateTimePickedUp(Order order, String datetime) {
-		//If the order is not well formed we should not do anything with it
-		if (!order.isWellFormed()) {
-			return false;
-		}
-		
 		return false;
 	}
 }
