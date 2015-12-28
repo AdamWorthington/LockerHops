@@ -1,16 +1,21 @@
 package jumpit.lockereats.server;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
 import org.json.JSONObject;
 
 //TODO: figure out how to link order object and the entry in the database
 //TODO: decide if worth it to move these methods to the order class (so can call in an object oriented style)
 //TODO: decide if it is better to have 1 large orders table or multiple tables per restaurant
-//TODO: should probably be using AWS CodeCommit & CodeDeploy over Github...
+//TODO: should probably be using AWS CodeCommit & CodeDeploy instead of Github...
+//TODO: if the server code runs 100% of the time on aws we should use a connection pool
+//	  : would need to write that code (or find it if it already exists)
 
 //TODO: DB table for orders:
 //	-Only need 1 table that contains all restaurant orders (a query for a specific restaurant returns
@@ -35,6 +40,21 @@ public class DatabaseAccessors {
 	static final String password 	= "!25spoHrekcoL?9";
 	static final String driver 		= "com.mysql.jdbc.Driver";
 	static final String jdbcUrl 	= "jdbc:mysql://" + url + "/" + dbName + "?user=" + username + "&password=" + password;
+	
+	/*
+	 * placeOrder
+	 * updateTimePlacedInLocker
+	 * updatePickupTime
+	 * addRestaurantItem
+	 * addRestaurant
+	 * 
+	 * TODO:
+	 * -getRestaurantInfo
+	 * -getRestaurantItems (with additional search terms)
+	 * -
+	 * -
+	 * -
+	 */
 	
 	/*
 	 * Store the order in the database and updates this order's ID (as per identifier assigned by database)
@@ -257,6 +277,9 @@ public class DatabaseAccessors {
 		return false;
 	}
 	
+	/*
+	 * Add an item from a restaurant to the database
+	 */
 	public boolean addRestaurantItem(
 			String 		restaurant,		//Name of the restaurant (limit 40 characters)
 			String 		item,			//Name of the item (limit 45 characters)
@@ -388,6 +411,180 @@ public class DatabaseAccessors {
 		return false;
 	}
 	
+	public static ArrayList<Item> getRestaurantItems(String restaurant) {
+
+		//The prepared statement for this order
+		PreparedStatement	stmt	= null;
+
+		//The connection to the database
+		Connection			conn	= null;
+
+		//The SQL query to update this order's information
+		String query = "SELECT Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan "
+					 + "FROM Restaurant_Items WHERE Restaurant = ?;";
+
+		//Check we can get the driver
+		try {
+			System.out.print("Checking driver in getRestaurantItems: ");
+			Class.forName(driver);
+			System.out.println("SUCCESS");
+		} 
+		catch (ClassNotFoundException e) {
+			System.out.println("Cannot find the driver in the classpath in getRestaurantItems:    ");
+			e.printStackTrace();
+			return null;
+		}
+
+		try {
+			//Acquire a connection using the specified driver
+			System.out.print("Creating connection in getRestaurantItems: ");
+			conn = DriverManager.getConnection(jdbcUrl);
+			System.out.println("SUCCESS");
+
+			//Prepare the statement based on the given query
+			System.out.print("Preparing statement in getRestaurantItems: ");
+			stmt = conn.prepareStatement(query);
+			System.out.println("SUCCESS");
+
+			//Add values to the prepared statement
+			System.out.print("Setting statement values in getRestaurantItems: ");
+			stmt.setString(1, restaurant);
+			System.out.println("1");
+
+			//Execute the statement to insert this order into the database
+			System.out.print("Executing statement in getRestaurantItems: ");
+			ResultSet rs = stmt.executeQuery();
+
+			//Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan
+			ArrayList<Item> items = new ArrayList<Item>();
+			String name, item, description, category, subCategory;
+			double cost;
+			String[] ingredients;
+			while(rs.next()) {
+				boolean glutenFree, vegetarian, vegan;
+				
+				//Retrive values from ResultSet and build the array of Items for this restaurant
+				name 		= rs.getString("Restaurant");
+				item 		= rs.getString("Item");
+				description	= rs.getString("Description");
+				cost 		= rs.getDouble("Cost");
+				category 	= rs.getString("Category");
+				subCategory = rs.getString("Sub-Category");
+				
+				Array ingrTemp = rs.getArray("Ingredients");
+				ingredients = (String[]) ingrTemp.getArray();
+				
+				glutenFree	= (rs.getInt("") == 1) ? true : false;
+				vegetarian 	= (rs.getInt("") == 1) ? true : false;
+				vegan 		= (rs.getInt("") == 1) ? true : false;
+				
+				Item i = new Item(name, item, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
+				items.add(i);
+			}
+			System.out.println("SUCCESS");
+			return items;
+		}
+		catch(SQLException e) {
+			System.out.println("Unable to create and execute statement in getRestaurantItems:    ");
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public static ArrayList<Restaurant> getRestaurants() {
+		ArrayList<Restaurant> restaurants = null;
+		
+		
+		return restaurants;
+	}
+	
+	public static boolean addRestaurant(String name, String address, String phone, String website, String type) {
+		if (!stringIsValid(name)) {
+
+		}
+		if (!stringIsValid(address)) {
+			System.out.println("Invalid address in addRestaurant (" + address + ")");
+		}
+		if (!stringIsValid(phone)) {
+			System.out.println("Invalid phone in addRestaurant (" + phone + ")");
+		}
+		if (!stringIsValid(website)) {
+			System.out.println("Invalid website in addRestaurant (" + website + ")");
+		}
+		if (!stringIsValid(type)) {
+			System.out.println("Invalid type in addRestaurant (" + type + ")");
+		}
+
+		//The prepared statement for this order
+		PreparedStatement	stmt	= null;
+
+		//The connection to the database
+		Connection			conn	= null;
+
+		//The SQL query to update this order's information
+		String 				query = "INSERT INTO Restaurants (`Restaurant`, `Address`, `Phone_Number`, `Website`, `Type`) VALUES " +
+									"(?, ?, ?, ?, ?);";
+
+		//Check we can get the driver
+		try {
+			System.out.print("Checking driver in addRestaurant: ");
+			Class.forName(driver);
+			System.out.println("SUCCESS");
+		} 
+		catch (ClassNotFoundException e) {
+			System.out.println("Cannot find the driver in the classpath in addRestaurant:    ");
+			e.printStackTrace();
+			return false;
+		}
+
+		try {
+			//Acquire a connection using the specified driver
+			System.out.print("Creating connection in addRestaurant: ");
+			conn = DriverManager.getConnection(jdbcUrl);
+			System.out.println("SUCCESS");
+
+			//Prepare the statement based on the given query
+			System.out.print("Preparing statement in addRestaurant: ");
+			stmt = conn.prepareStatement(query);
+			System.out.println("SUCCESS");
+
+			//Add values to the prepared statement
+			System.out.print("Setting statement values in addRestaurant: ");
+			stmt.setString(1, name);
+			System.out.print("1 ");
+			stmt.setString(2, address);
+			System.out.print("2 ");
+			stmt.setString(3, phone);
+			System.out.print("3 ");
+			stmt.setString(4, website);
+			System.out.print("4 ");
+			stmt.setString(5, type);
+			System.out.println("5");
+
+			//Execute the statement to insert this order into the database
+			System.out.print("Executing statement in addRestaurant: ");
+			int ret = stmt.executeUpdate();
+
+			//
+			if (ret != 0) {
+				System.out.println("SUCCESS");
+				return true;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println("Unable to create and execute statement in addRestaurant:    ");
+			e.printStackTrace();
+			return false;
+		}
+
+		//This is only reached if there was no value assigned to the insertion, meaning it failed, or an exception occured
+		System.out.println("FAILURE");
+		return false;
+	}
+	
+	/*
+	 * Generic method for checking validity of string arguments
+	 */
 	public static boolean stringIsValid(String s) {
 		if (s == null || s == "") return false;
 		return true;
