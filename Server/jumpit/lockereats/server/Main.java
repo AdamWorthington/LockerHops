@@ -2,7 +2,7 @@ package jumpit.lockereats.server;
 
 public class Main {
 	public static void main(String[] args) {
-		if (testOrderPlacement()) {
+		/*if (testOrderPlacement()) {
 			System.out.println("+----------------------------+");
 			System.out.println("| ORDER PLACEMENT SUCCESSFUL |");
 			System.out.println("+----------------------------+");
@@ -11,7 +11,25 @@ public class Main {
 			System.out.println("+-------------------------+");
 			System.out.println("| ORDER PLACEMENT FAILURE |");
 			System.out.println("+-------------------------+");
-		}
+		}*/
+		
+		testGetRestaurants();
+		
+	}
+	
+	public static boolean testGetRestaurants() {
+		Restaurant restaurant = new Restaurant("Vans", "123 Street Street", "777-777-7777", "www.vans.com", "American");
+		DatabaseAccessors.getRestaurants(restaurant);
+		
+		return true;
+	}
+	
+	public static boolean testGetRestaurantItems() {
+		Item item = new Item("Vans", "Panini", "", 12.99, "Lunch", "American", null, true, true, true);
+		DatabaseAccessors.getRestaurantItems(item);
+		
+		return true;
+		
 	}
 	
 	public static boolean testOrderPlacement() {
@@ -34,6 +52,12 @@ public class Main {
 	}
 	
 	public static boolean testItemPlacement() {
+		
+		
+		return false;
+	}
+	
+	public static boolean testRestaurantPlacement() {
 		
 		
 		return false;
