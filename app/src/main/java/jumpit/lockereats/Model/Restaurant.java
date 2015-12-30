@@ -10,6 +10,9 @@ import java.util.Dictionary;
  */
 public class Restaurant
 {
+    private int restaurantId;
+    public int getRestaurantId() { return restaurantId; }
+
     /*
     Icon of this restuarant
      */
@@ -57,6 +60,7 @@ public class Restaurant
     {
         return storeMenu;
     }
+    public void setStoreMenu(StoreMenu m) { storeMenu = m; }
 
     public Restaurant(String name, Location storeLocation, Dictionary<String, String> hoursOfOperation, StoreMenu storeMenu)
     {
@@ -64,5 +68,6 @@ public class Restaurant
         this.storeLocation = storeLocation;
         this.hoursOfOperation = hoursOfOperation;
         this.storeMenu = storeMenu;
+        this.restaurantId = 1;
     }
 }
