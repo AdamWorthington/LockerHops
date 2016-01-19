@@ -5,14 +5,15 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Order {
 	int			id;				//ID of the order (assigned by the database, -1 indicated unassigned)
 	String		restaurant;		//Name of the restaurant to which this order is being placed
 	String[]	items;			//Array of orders
 	double		cost;			//Dollar/cent cost of order (minimum $00.00, maximum $9999.99)
-								//If cost is ever going to be > 1,000,000 move this to BigDecimal
-	
+	//If cost is ever going to be > 1,000,000 move this to BigDecimal
+
 	//Database information
 	static final String url 		= DatabaseAccessors.url;
 	static final String dbName 		= DatabaseAccessors.dbName;
@@ -20,14 +21,14 @@ public class Order {
 	static final String password 	= DatabaseAccessors.password;
 	static final String driver 		= DatabaseAccessors.driver;
 	static final String jdbcUrl 	= DatabaseAccessors.jdbcUrl;
-	
+
 	public Order(String restaurant, String[] items, double cost) {
 		this.id			= -1;
 		this.restaurant = restaurant;
 		this.items 		= items;
 		this.cost 		= cost;
 	}
-	
+
 	/*
 	 * Indicates if the fields in the order contain values that can be correct
 	 */
@@ -36,31 +37,31 @@ public class Order {
 			System.out.println("Order has bad restaurant");
 			return false;
 		}
-		
+
 		if (this.items == null) {
 			System.out.println("Order has no items");
 			return false;
 		}
-		
+
 		for (String item : this.items) {
 			if (item == null || item == "") {
-					System.out.println("Order has malformed item");
-					return false;
+				System.out.println("Order has malformed item");
+				return false;
 			}
 		}
-		
+
 		if (this.cost <= 0.00) {
 			System.out.println("Order has malformed cost (" + this.cost + ")");
 			return false;
 		}
-		
+
 		if (this.id < -1) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	public String getRestaurant() {
 		return this.restaurant;
 	}
@@ -72,15 +73,15 @@ public class Order {
 	public double getCost() {
 		return this.cost;
 	}
-	
+
 	public int getID() {
 		return this.id;
 	}
-	
+
 	public void setID(int ID) {
 		this.id = ID;
 	}
-	
+
 	/*
 	 * Generic method for checking validity of string arguments
 	 */
@@ -88,7 +89,7 @@ public class Order {
 		if (s == null || s == "") return false;
 		return true;
 	}
-	
+
 	/*
 	 * Store the order in the database and updates this order's ID (as per identifier assigned by database)
 	 * @param order: the order to be placed in the database
@@ -194,7 +195,7 @@ public class Order {
 
 		return true;
 	}
-	
+
 	/*
 	 * Update the time an order was placed in the lockers
 	 * @param order: the order entry to update.
@@ -308,5 +309,80 @@ public class Order {
 		//This is only reached if there was no value assigned to the insertion, meaning it failed, or an exception occured
 		System.out.println("FAILURE");
 		return false;
+	}
+
+	public static ArrayList<Order> getOrders(String restaurant) {
+		//PERFORM ARGUMENT VALIDATION HERE
+		if (!stringIsValid(restaurant)) {
+			System.out.println("Invalid restaurant (" + restaurant + ") in getOrders");
+			return null;
+		}
+			
+
+
+		//The prepared statement for this order
+		PreparedStatement stmt	= null;
+
+		//The connection to the database
+		Connection conn	= null;
+
+		//The SQL query to update this order's information
+		String 	query = "SELECT * " + 
+						"FROM Orders " + 
+						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " + 
+						"WHERE Restaurant = ? AND TimePickedUp IS NULL";
+
+		//Check we can get the driver
+		try {
+			System.out.print("Checking driver: ");
+			Class.forName(driver);
+			System.out.println("SUCCESS");
+		} 
+		catch (ClassNotFoundException e) {
+			System.out.println("Cannot find the driver in the classpath:    ");
+			e.printStackTrace();
+			return null;
+		}
+
+		try {
+			//Acquire a connection using the specified driver
+			System.out.print("Creating connection: ");
+			conn = DriverManager.getConnection(jdbcUrl);
+			System.out.println("SUCCESS");
+
+			//Prepare the statement based on the given query
+			System.out.print("Preparing statement: ");
+			stmt = conn.prepareStatement(query);
+			System.out.println("SUCCESS");
+
+			//Add values to the prepared statement
+			System.out.print("Setting statement values: ");
+			System.out.println("1");
+			stmt.setString(1, restaurant);
+
+			//Execute the statement to insert this order into the database
+			System.out.print("Executing statement: ");
+			ResultSet rs = stmt.executeQuery();
+			
+			ArrayList<Order> orderList = new ArrayList<Order>();
+
+			//TODO: Figure out how to get orders and their respective items together out of the database
+			while(rs.next()) {
+				
+			}
+			if (orderList.size() != 0) {
+				System.out.println("SUCCESS");
+				return orderList;
+			}
+			else {
+				System.out.println("FAILURE");
+				return null;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println("Unable to create and execute statement:    ");
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

@@ -1,3 +1,5 @@
+//MAIN IS CURRENTLY FOR TESTING PURPOSES ONLY!!!!
+
 package jumpit.lockereats.server;
 
 import java.util.ArrayList;
@@ -13,9 +15,9 @@ public class Main {
 			System.out.println("+-------------------------+");
 			System.out.println("| ORDER PLACEMENT FAILURE |");
 			System.out.println("+-------------------------+");
-		}*/
+		}
 		
-		//testAddRestaurant();
+		testAddRestaurant();
 		
 		if (testGetRestaurants()) {
 			System.out.println("+---------------------------+");
@@ -26,7 +28,7 @@ public class Main {
 			System.out.println("+------------------------+");
 			System.out.println("| RESTAURANT GET FAILURE |");
 			System.out.println("+------------------------+");
-		}
+		}*/
 		
 	}
 	
@@ -51,7 +53,6 @@ public class Main {
 		item.getRestaurantItems();
 		
 		return true;
-		
 	}
 	
 	public static boolean testOrderPlacement() {

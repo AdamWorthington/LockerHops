@@ -5,8 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-//TODO: figure out how to link order object and the entry in the database
-//TODO: decide if worth it to move these methods to the order class (so can call in an object oriented style)
 //TODO: decide if it is better to have 1 large orders table or multiple tables per restaurant
 //TODO: should probably be using AWS CodeCommit & CodeDeploy instead of Github...
 //TODO: if the server code runs 100% of the time on aws we should use a connection pool
