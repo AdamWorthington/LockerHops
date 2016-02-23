@@ -192,7 +192,11 @@ public class JsonMessage {
 	/*
 	 * get Type
 	 */
+<<<<<<< HEAD
 	public static int getType(JSONObject json) throws JSONException
+=======
+	public static int getType(JSONObject json) throws Exception
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
 	{
 		return json.getInt(num_id);
 	}
@@ -200,7 +204,11 @@ public class JsonMessage {
 	/*
 	 * get user
 	 */
+<<<<<<< HEAD
 	public static String getUser(JSONObject json) throws JSONException
+=======
+	public static String getUser(JSONObject json) throws Exception
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
 	{
 		return json.getString(user_id);
 	}
@@ -208,7 +216,11 @@ public class JsonMessage {
 	/*
 	 * get num args
 	 */
+<<<<<<< HEAD
 	public static int getNumArgs(JSONObject json) throws JSONException
+=======
+	public static int getNumArgs(JSONObject json) throws Exception
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
 	{
 		return json.getInt(num_args);
 	}
@@ -216,7 +228,11 @@ public class JsonMessage {
 	/*
 	 * get arg1
 	 */
+<<<<<<< HEAD
 	public static Object getArgOne(JSONObject json) throws JSONException
+=======
+	public static Object getArgOne(JSONObject json) throws Exception
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
 	{
 		return json.get(arg1);
 	}
