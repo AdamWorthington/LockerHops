@@ -191,7 +191,7 @@ public class JsonMessage {
 	/*
 	 * get Type
 	 */
-	public static int getType(JSONObject json)
+	public static int getType(JSONObject json) throws Exception
 	{
 		return json.getInt(num_id);
 	}
@@ -199,7 +199,7 @@ public class JsonMessage {
 	/*
 	 * get user
 	 */
-	public static String getUser(JSONObject json)
+	public static String getUser(JSONObject json) throws Exception
 	{
 		return json.getString(user_id);
 	}
@@ -207,7 +207,7 @@ public class JsonMessage {
 	/*
 	 * get num args
 	 */
-	public static int getNumArgs(JSONObject json)
+	public static int getNumArgs(JSONObject json) throws Exception
 	{
 		return json.getInt(num_args);
 	}
@@ -215,7 +215,7 @@ public class JsonMessage {
 	/*
 	 * get arg1
 	 */
-	public static Object getArgOne(JSONObject json)
+	public static Object getArgOne(JSONObject json) throws Exception
 	{
 		return json.get(arg1);
 	}
