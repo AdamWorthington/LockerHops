@@ -18,26 +18,28 @@
         <activity
             android:name=".Controller.Welcome"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
             <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
         <activity
             android:name=".Controller.Home"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-        <activity
-            android:name=".Controller.Login"
-            android:label="@string/title_activity_login" />
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".Controller.RestaurantMenu"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Controller.Cart"
+            android:label="@string/title_activity_checkout"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Controller.CustomizeItem"
             android:label="@string/title_activity_checkout"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name="com.facebook.FacebookActivity"

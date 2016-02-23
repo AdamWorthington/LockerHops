@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#cbcbcb">
+
+    <TextView
+        android:id="@+id/list_item_resetaurant_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Item" />
+    <TextView
+        android:id="@+id/list_item_restaurant_item_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:layout_alignParentRight="true"
+        android:text="Price" />
+    <TextView
+        android:id="@+id/list_item_restaurant_item_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Description"
+        android:layout_below="@id/list_item_resetaurant_item_name"/>
+
+</RelativeLayout>

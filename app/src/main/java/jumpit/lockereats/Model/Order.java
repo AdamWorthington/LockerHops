@@ -15,15 +15,21 @@ public class Order
         return orderDate;
     }
 
-
     private HashMap<StoreItem, Integer> orderItems;
     public HashMap<StoreItem, Integer> getOrderItems()
     {
         return orderItems;
     }
 
-    public Order()
+    private Restaurant source;
+    public Restaurant getSource()
     {
+        return source;
+    }
+
+    public Order(Restaurant source)
+    {
+        this.source = source;
         orderItems = new HashMap<>();
     }
 
