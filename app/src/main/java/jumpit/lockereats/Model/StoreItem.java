@@ -17,9 +17,23 @@ public class StoreItem
         return price;
     }
 
-    public StoreItem(String name, float price)
+    private String description;
+    public String getDescription()
+    {
+        return  description;
+    }
+
+    private int id;
+    public int getId()
+    {
+        return id;
+    }
+
+    public StoreItem(String name, float price, String description, int id)
     {
         this.name = name;
         this.price = price;
+        this.description = description;
+        this.id = id;
     }
 }

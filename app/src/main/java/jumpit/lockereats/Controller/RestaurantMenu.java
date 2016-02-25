@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,18 +11,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
-import jumpit.lockereats.Core.MenuArrayAdapter;
+import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import jumpit.lockereats.Core.Adapters.RestaurantExandapleAdapter;
 import jumpit.lockereats.Core.Singleton;
 import jumpit.lockereats.Model.Restaurant;
-import jumpit.lockereats.Model.StoreItem;
+import jumpit.lockereats.Model.StoreCategory;
 import jumpit.lockereats.Model.StoreMenu;
 import jumpit.lockereats.R;
 
@@ -63,8 +60,12 @@ public class RestaurantMenu extends AppCompatActivity
         listMenu.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         listMenu.setLayoutManager(llm);
-        MenuArrayAdapter listAdapter = new MenuArrayAdapter(curMenu.getMenu());
-        listMenu.setAdapter(listAdapter);
+        ArrayList<StoreCategory> categories = curMenu.getCategories();
+        List<ParentObject> categoriesCasted = new ArrayList<>();
+        for(StoreCategory sc : categories)
+            categoriesCasted.add(sc);
+        RestaurantExandapleAdapter menuAdapter = new RestaurantExandapleAdapter(this, categoriesCasted);
+        listMenu.setAdapter(menuAdapter);
     }
 
     @Override
@@ -96,25 +97,25 @@ public class RestaurantMenu extends AppCompatActivity
 
     public void AddToOrder(View view)
     {
-        LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent().getParent();
+        /*LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent().getParent();
         int position = (int)parent.getTag();
         StoreItem thisItem = curMenu.getMenuItemByPos(position);
 
         int newCount = Singleton.getInstance().getOrder().addToOrder(thisItem);
         ((View) view.getParent()).findViewById(R.id.menuItemCount);
         TextView countView = (TextView)parent.findViewById(R.id.menuItemCount);
-        countView.setText(String.valueOf(newCount));
+        countView.setText(String.valueOf(newCount));*/
     }
 
     public void RemoveFromOrder(View view)
     {
-        LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent().getParent();
+        /*LinearLayout parent = (LinearLayout) view.getParent().getParent().getParent().getParent();
         int position = (int)parent.getTag();
         StoreItem thisItem = curMenu.getMenuItemByPos(position);
 
         int newCount = Singleton.getInstance().getOrder().removeFromOrder(thisItem);
         ((View) view.getParent()).findViewById(R.id.menuItemCount);
         TextView countView = (TextView)parent.findViewById(R.id.menuItemCount);
-        countView.setText(String.valueOf(newCount));
+        countView.setText(String.valueOf(newCount));*/
     }
 }

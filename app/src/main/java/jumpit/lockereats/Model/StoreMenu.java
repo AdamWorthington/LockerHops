@@ -1,28 +1,30 @@
 package jumpit.lockereats.Model;
 
+import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by cdwil on 12/8/2015.
  */
 public class StoreMenu
 {
-    private ArrayList<StoreItem> menu;
-    public ArrayList<StoreItem> getMenu()
+    private ArrayList<StoreCategory> categories;
+    public ArrayList<StoreCategory> getCategories()
     {
-        return menu;
+        return categories;
     }
 
-    public StoreItem getMenuItemByPos(int position)
+    private Restaurant parent;
+    public Restaurant getParent()
     {
-        if(position > menu.size() - 1 || position < 0)
-            return null;
-
-        return menu.get(position);
+        return parent;
     }
 
-    public StoreMenu(ArrayList<StoreItem> menu)
+    public StoreMenu(ArrayList<StoreCategory> items, Restaurant parent)
     {
-        this.menu = menu;
+        this.parent = parent;
+        categories = items;
     }
 }

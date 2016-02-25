@@ -18,6 +18,20 @@
         <activity
             android:name=".Controller.Welcome"
             android:label="@string/title_activity_home"
+<<<<<<< HEAD
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
+            <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Controller.Home"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"/>
+=======
             android:theme="@style/AppTheme.NoActionBar" />
 
         <meta-data
@@ -38,6 +52,7 @@
         <activity
             android:name=".Controller.Login"
             android:label="@string/title_activity_login" />
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
         <activity
             android:name=".Controller.RestaurantMenu"
             android:label="@string/title_activity_home"
@@ -47,10 +62,21 @@
             android:label="@string/title_activity_checkout"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+<<<<<<< HEAD
+            android:name=".Controller.CustomizeItem"
+            android:label="@string/title_activity_checkout"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
+=======
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+>>>>>>> be03f758c8896b987affeb2fe9681322b37ed9c6
     </application>
 
 </manifest>
