@@ -113,5 +113,16 @@
 
     <item type="id" name="option_item_position"/>
     <item type="id" name="option_item_internal_position"/>
-
+    <string-array name="orderquantity_array">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+    </string-array>
 </resources>

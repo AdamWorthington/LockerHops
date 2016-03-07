@@ -12,7 +12,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
@@ -38,13 +41,33 @@ import org.json.JSONException;
 
 public class CustomizeItem extends AppCompatActivity
 {
-
+    private CustomizeItemArrayAdapter contentAdapter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customize_item);
+
+        Spinner spinner = (Spinner) findViewById(R.id.orderQuantity);
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.orderquantity_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                onSpinnerChanged(parent, position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         /*Recieve the intent from the restaurant menu and get selected item*/
         Intent intent = getIntent();
@@ -77,5 +100,26 @@ public class CustomizeItem extends AppCompatActivity
         LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         configRecyclerView.setLayoutManager(llm);
         configRecyclerView.setAdapter(listAdapter);
+        this.contentAdapter = listAdapter;
+    }
+
+    private void onSpinnerChanged(AdapterView<?> parent, int position)
+    {
+        //The array stored by the adapter view is a string representation of 1-10
+        String selection = (String)parent.getItemAtPosition(position);
+        int value = Integer.valueOf(selection);
+
+        calculateTotal(value);
+    }
+
+    private void calculateTotal(int orderCount)
+    {
+        if(contentAdapter == null)
+            return;
+
+        float total = contentAdapter.calculateCost() * orderCount;
+        String moneyString = NumberFormat.getCurrencyInstance().format(total);
+        TextView totalTextView = (TextView) findViewById(R.id.itemSubtotal);
+        totalTextView.setText(moneyString);
     }
 }

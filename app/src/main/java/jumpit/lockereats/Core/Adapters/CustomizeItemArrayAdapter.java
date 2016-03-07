@@ -163,6 +163,13 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         checkBox.performClick();
     }
 
+    public float calculateCost()
+    {
+        float total = 0f;
+
+        return total;
+    }
+
     @Override
     public int getItemCount() {
         return values.size();
