@@ -1,47 +1,33 @@
 package jumpit.lockereats.Controller;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.math.BigDecimal;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import jumpit.lockereats.Core.Adapters.CustomizeItemArrayAdapter;
-import jumpit.lockereats.Core.Singleton;
 import jumpit.lockereats.Model.FoodItemOption;
-import jumpit.lockereats.Model.Order;
-import jumpit.lockereats.Model.StoreItem;
 import jumpit.lockereats.R;
 
-import com.paypal.android.sdk.payments.PayPalConfiguration;
-import com.paypal.android.sdk.payments.PayPalPayment;
-import com.paypal.android.sdk.payments.PayPalService;
-import com.paypal.android.sdk.payments.PaymentActivity;
-import com.paypal.android.sdk.payments.PaymentConfirmation;
-
-import org.json.JSONException;
-
-public class CustomizeItem extends AppCompatActivity
+public class CustomizeItem extends AppCompatActivity implements PropertyChangeListener
 {
     private CustomizeItemArrayAdapter contentAdapter = null;
+    private double total = 0f;
+    private int quantity = 1;
+    private LinearLayoutManager llm;
+    private RecyclerView configRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -95,12 +81,13 @@ public class CustomizeItem extends AppCompatActivity
         options.add(option2);
         options.add(option3);
 
-        CustomizeItemArrayAdapter listAdapter = new CustomizeItemArrayAdapter(options, R.layout.layout_list_item_config_item);
-        RecyclerView configRecyclerView = (RecyclerView) findViewById(R.id.itemConfigRecyclerView);
-        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        contentAdapter = new CustomizeItemArrayAdapter(options, R.layout.layout_list_item_config_item);
+        configRecyclerView = (RecyclerView) findViewById(R.id.itemConfigRecyclerView);
+        llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         configRecyclerView.setLayoutManager(llm);
-        configRecyclerView.setAdapter(listAdapter);
-        this.contentAdapter = listAdapter;
+        configRecyclerView.setAdapter(contentAdapter);
+
+        contentAdapter.addChangeListener(this);
     }
 
     private void onSpinnerChanged(AdapterView<?> parent, int position)
@@ -108,18 +95,38 @@ public class CustomizeItem extends AppCompatActivity
         //The array stored by the adapter view is a string representation of 1-10
         String selection = (String)parent.getItemAtPosition(position);
         int value = Integer.valueOf(selection);
+        quantity = value;
 
-        calculateTotal(value);
+        calculateTotal();
     }
 
-    private void calculateTotal(int orderCount)
+    @Override
+    public void propertyChange(PropertyChangeEvent event)
     {
-        if(contentAdapter == null)
-            return;
+        total = (double)event.getNewValue();
 
-        float total = contentAdapter.calculateCost() * orderCount;
-        String moneyString = NumberFormat.getCurrencyInstance().format(total);
+        String moneyString = NumberFormat.getCurrencyInstance().format(total * quantity);
         TextView totalTextView = (TextView) findViewById(R.id.itemSubtotal);
         totalTextView.setText(moneyString);
+    }
+
+    private void calculateTotal()
+    {
+        String moneyString = NumberFormat.getCurrencyInstance().format(total * quantity);
+        TextView totalTextView = (TextView) findViewById(R.id.itemSubtotal);
+        totalTextView.setText(moneyString);
+    }
+
+    public void onAddToCart(View v)
+    {
+        int invalidPos = contentAdapter.validateForm();
+        if(invalidPos != -1)
+        {
+            configRecyclerView.smoothScrollToPosition(invalidPos);
+        }
+        else
+        {
+            /* We are clear to add the order to the cart */
+        }
     }
 }

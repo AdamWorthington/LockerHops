@@ -12,7 +12,10 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import jumpit.lockereats.Model.FoodItemOption;
@@ -26,6 +29,19 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
 {
     private List<FoodItemOption> values;
     private int itemLayout;
+    private double totalCost = 0.0;
+    public double getTotalCost()
+    {
+        return totalCost;
+    }
+    private void setTotalCost(double newValue)
+    {
+        double oldValue = totalCost;
+        totalCost = newValue;
+        notifyListeners("totalCost", oldValue, newValue);
+    }
+
+    private List<PropertyChangeListener> listener = new ArrayList<PropertyChangeListener>();
 
     public CustomizeItemArrayAdapter(List<FoodItemOption> values, int itemLayout)
     {
@@ -133,6 +149,7 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
     private void OnCheckedChanged(RadioGroup group, int checkedId, CustomizeItemViewHolder holder)
     {
         holder.ItemChooseIndicatorTextView.setTextColor(Color.GREEN);
+        //totalCost -= thisOptionItem.getPrice();
     }
 
     private void onItemClicked(View v, CustomizeItemViewHolder holder)
@@ -153,21 +170,47 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         if(isChecked)
         {
             thisOption.decrementChoiceCount();
-
+            setTotalCost(totalCost - thisOptionItem.getPrice());
         }
         else
         {
             thisOption.incrementChoiceCount();
+            setTotalCost(totalCost + thisOptionItem.getPrice());
         }
 
         checkBox.performClick();
     }
 
-    public float calculateCost()
+    /*
+     * checks to make sure that all option items that need to have a selection do have a selection.
+     * If a section is not filled that needs to be, it will return the position that needs to be filled.
+     * Otherwise it returns -1.
+     */
+    public int validateForm()
     {
-        float total = 0f;
+        int position = -1;
+        for(int i = 0; i < values.size(); i++)
+        {
+            FoodItemOption option = values.get(i);
+            //If we must choose a certain number of items for an option and this is not met,
+            //quit immediately and notify caller.
+            if(!option.getCanChoose() && option.getChoiceCount() != option.getChooseLimit()) {
+                position = i;
+                break;
+            }
+        }
 
-        return total;
+        return position;
+    }
+
+    private void notifyListeners(String property,double oldValue, double newValue) {
+        for (PropertyChangeListener name : listener) {
+            name.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+        }
+    }
+
+    public void addChangeListener(PropertyChangeListener newListener) {
+        listener.add(newListener);
     }
 
     @Override
