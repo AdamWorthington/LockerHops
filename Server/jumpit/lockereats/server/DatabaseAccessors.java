@@ -29,8 +29,8 @@ import java.sql.SQLException;
 public class DatabaseAccessors {
 
 	//Database information
-	static final String url 		= "lockerhopsmain.c2fmvfgm3x77.us-east-1.rds.amazonaws.com:3306";
-	static final String dbName 		= "LockerHopsMain";
+	static final String url 		= "173.194.248.150:3306";
+	static final String dbName 		= "LockerHops";
 	static final String username 	= "LockerHops";
 	static final String password 	= "!25spoHrekcoL?9";
 	static final String driver 		= "com.mysql.jdbc.Driver";
