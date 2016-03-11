@@ -1,5 +1,51 @@
 package com.lockerhops.backend;
 
+
+
+
+/*
+ * Header file for Methods:
+ * -Order
+ *   -placeOrder:
+ *     -Store the order in the database and updates this order's ID (as per identifier assigned by database)
+ *     -@param order: the order to be placed in the database
+ *     -Returns true if successfully entered into DB, false otherwise
+ *   -updateTimePlacedInLocker:
+ *     -Update the time an order was placed in the lockers
+ *     -@param order: the order entry to update.
+ *     -@param datetime: the datetime value when the item was handled
+ *     -Returns true if update was successful, false otherwise
+ *   -updatePickupTime:
+ *     -Update the time an order was picked up
+ *     -@param order: the order entry to update.
+ *     -@param datetime: the datetime value when the item was handled
+ *     -Returns true if update was successful, false otherwise
+ *   -getOrders:
+ *     -Get all orders from a restaurant that have not been picked up
+ *     -@param restaurant: a string representing the name of the restaurant to get orders from
+ *     -Returns an arraylist of order objects
+ * -Item
+ *   -addRestaurantItem:
+ *     -Add a restaurant item to the database
+ *     -See the method itself for what to pass it, there is a lot
+ *   -getRestaurantItems:
+ *     -Returns all items that match to the given Item object
+ * -Restaurant
+ *   -getRestaurants:
+ *     -Returns an arraylist of restaurant objects that match the given restaurant object.
+ *   -addRestaurant:
+ *     -Add a restaurant to the database
+ *     -@param name: 	a string representing the name of the restaurant
+ *     -@param address: a string representing the address of the restaurant
+ *     -@param phone: 	a string representing the phone number of the restaurant
+ *     -@param website: a string representing the website URL of the restaurant
+ *     -@param type: 	a string representing the type (American, Fast-Food, Chinese, etc) of the restaurant
+ *     -Returns true or false dependant on database insertion success
+ */
+
+
+
+
 /**
  * Created by Scott on 2/24/2016.
  *
