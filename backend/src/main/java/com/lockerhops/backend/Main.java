@@ -1,6 +1,6 @@
 //MAIN IS CURRENTLY FOR TESTING PURPOSES ONLY!!!!
 
-package jumpit.lockereats.server;
+package com.lockerhops.backend;
 
 import java.util.ArrayList;
 
