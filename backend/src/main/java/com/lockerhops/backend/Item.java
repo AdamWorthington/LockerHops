@@ -104,37 +104,24 @@ public class Item {
 	/*
 	 * Add an item from a restaurant to the database
 	 */
-	public boolean addRestaurantItem(
-			String 		restaurant,		//Name of the restaurant (limit 40 characters)
-			String 		item,			//Name of the item (limit 45 characters)
-			String 		description,	//Description of the item (limit 280 characters)
-			double 		cost,			//Cost of item (Max: 9999.99, Min: 0.00)
-			String 		category,		//Small granularity category (breakfast, lunch, dinner)
-			String 		subCategory,	//High granularity category (food type)
-			String[]	ingredients,	//List of ingredients in this item (OPTIONAL)
-			boolean 	glutenFree,		//Is this item gluten free? (OPTIONAL)
-			boolean 	vegetarian,		//Is this item vegetarian? (OPTIONAL)
-			boolean 	vegan			//Is this item vegan? (OPTIONAL)
-			) {
-
-
+	public boolean addRestaurantItem() {
 		//PERFORM ARGUMENT VALIDATION HERE
-		if (!stringIsValid(restaurant)) {
+		if (!stringIsValid(this.restaurant)) {
 			System.out.println("Invalid restaurant in addRestaurantItem");
 		}
-		if (!stringIsValid(item)) {
+		if (!stringIsValid(this.item)) {
 			System.out.println("Invalid item name in addRestaurantItem");
 		}
-		if (!stringIsValid(description)) {
+		if (!stringIsValid(this.description)) {
 			System.out.println("Invalid description in addRestaurantItem");
 		}
-		if (cost > 9999.99 || cost < 0) {
+		if (this.cost > 9999.99 || this.cost < 0) {
 			System.out.println("Invalid cost in addRestaurantItem");
 		}
-		if (!stringIsValid(category)) {
+		if (!stringIsValid(this.category)) {
 			System.out.println("Invalid category in addRestaurantItem");
 		}
-		if (!stringIsValid(subCategory)) {
+		if (!stringIsValid(this.subCategory)) {
 			System.out.println("Invalid subCategory in addRestaurantItem");
 		}
 
@@ -176,41 +163,41 @@ public class Item {
 			//Add values to the prepared statement
 			//Restaurant, Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan
 			System.out.print("Setting statement values: ");
-			stmt.setString(1, restaurant);
+			stmt.setString(1, this.restaurant);
 			System.out.print("1 ");
 
-			stmt.setString(2, item);
+			stmt.setString(2, this.item);
 			System.out.print("2 ");
 
-			stmt.setString(3, description);
+			stmt.setString(3, this.description);
 			System.out.print("3 ");
 
-			stmt.setDouble(4, cost);
+			stmt.setDouble(4, this.cost);
 			System.out.print("4 ");
 
-			stmt.setString(5, category);
+			stmt.setString(5, this.category);
 			System.out.print("5 ");
 
-			stmt.setString(6, subCategory);
+			stmt.setString(6, this.subCategory);
 			System.out.print("6 ");
 
-			if (ingredients == null) {
+			if (this.ingredients == null) {
 				stmt.setString(7, null);
 			}
 			else {
-				stmt.setString(7, String.join(",", ingredients));
+				stmt.setString(7, String.join(",", this.ingredients));
 			}
 			System.out.print("7 ");
 
-			int isGlutenFree = (glutenFree) ? 1 : 0;
+			int isGlutenFree = (this.glutenFree) ? 1 : 0;
 			stmt.setInt(8, isGlutenFree);
 			System.out.print("8 ");
 
-			int isVegetarian = (vegetarian) ? 1 : 0;
+			int isVegetarian = (this.vegetarian) ? 1 : 0;
 			stmt.setInt(9, isVegetarian);
 			System.out.print("9 ");
 
-			int isVegan = (vegan) ? 1 : 0;
+			int isVegan = (this.vegan) ? 1 : 0;
 			stmt.setInt(10, isVegan);
 			System.out.println("10");
 
