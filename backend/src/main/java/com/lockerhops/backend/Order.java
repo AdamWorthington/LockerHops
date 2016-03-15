@@ -1,4 +1,4 @@
-package jumpit.lockereats.server;
+package com.lockerhops.backend;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

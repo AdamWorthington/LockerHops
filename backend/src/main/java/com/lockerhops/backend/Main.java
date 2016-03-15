@@ -1,6 +1,6 @@
 //MAIN IS CURRENTLY FOR TESTING PURPOSES ONLY!!!!
 
-package jumpit.lockereats.server;
+package com.lockerhops.backend;
 
 import java.util.ArrayList;
 
@@ -29,7 +29,17 @@ public class Main {
 			System.out.println("| RESTAURANT GET FAILURE |");
 			System.out.println("+------------------------+");
 		}*/
-		
+
+		if (testItemPlacement()) {
+			System.out.println("+---------------------------+");
+			System.out.println("| ITEM PLACEMENT SUCCESSFUL |");
+			System.out.println("+---------------------------+");
+		}
+		else {
+			System.out.println("+------------------------+");
+			System.out.println("| ITEM PLACEMENT FAILURE |");
+			System.out.println("+------------------------+");
+		}
 	}
 	
 	public static boolean testAddRestaurant() {
@@ -75,9 +85,20 @@ public class Main {
 	}
 	
 	public static boolean testItemPlacement() {
-		
-		
-		return false;
+		String 		restaurant = "Vans";
+		String 		item = "Calzone";
+		String 		description = "A tasty calzone";
+		double 		cost = 9.99;
+		String 		category = "American";
+		String 		subCategory = "Delicious";
+		String[]	ingredients = null;
+		boolean 	glutenFree = false;
+		boolean 	vegetarian = false;
+		boolean 	vegan = false;
+
+		Item food = new Item(restaurant, item, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
+
+		return food.addRestaurantItem();
 	}
 	
 	public static boolean testRestaurantPlacement() {
