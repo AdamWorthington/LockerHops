@@ -3,8 +3,9 @@ package jumpit.lockereats.Core.Adapters;
 import android.view.View;
 import android.widget.TextView;
 
-import com.bignerdranch.expandablerecyclerview.ViewHolder.ParentViewHolder;
+import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 
+import jumpit.lockereats.Model.StoreCategory;
 import jumpit.lockereats.R;
 
 /**
@@ -13,6 +14,7 @@ import jumpit.lockereats.R;
 public class RestaurantCategoryViewHolder extends ParentViewHolder
 {
     public TextView TitleTextView;
+    public StoreCategory category;
 
     public RestaurantCategoryViewHolder(View itemView)
     {

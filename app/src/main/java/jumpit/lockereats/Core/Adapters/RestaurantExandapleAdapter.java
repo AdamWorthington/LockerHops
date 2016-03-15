@@ -2,12 +2,14 @@ package jumpit.lockereats.Core.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Parcel;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bignerdranch.expandablerecyclerview.Adapter.ExpandableRecyclerAdapter;
-import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
+import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
+import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
+import com.bignerdranch.expandablerecyclerview.ParentViewHolder;
 
 import java.text.NumberFormat;
 import java.util.List;
@@ -22,7 +24,7 @@ import jumpit.lockereats.R;
  */
 public class RestaurantExandapleAdapter extends ExpandableRecyclerAdapter<RestaurantCategoryViewHolder, RestaurantItemViewHolder>
 {
-    private final List<ParentObject> parents;
+    private final List<ParentListItem> parents;
     private Context context;
 
     @Override
@@ -34,10 +36,11 @@ public class RestaurantExandapleAdapter extends ExpandableRecyclerAdapter<Restau
     }
 
     @Override
-    public void onBindParentViewHolder(RestaurantCategoryViewHolder restaurantCategoryViewHolder, int i, Object o)
+    public void onBindParentViewHolder(RestaurantCategoryViewHolder restaurantCategoryViewHolder, int i, ParentListItem o)
     {
-        StoreCategory item = (StoreCategory)o;
-        restaurantCategoryViewHolder.TitleTextView.setText(item.getCategory());
+        StoreCategory cat = (StoreCategory)o;
+        restaurantCategoryViewHolder.TitleTextView.setText(cat.getCategory());
+        restaurantCategoryViewHolder.category = cat;
     }
 
     @Override
@@ -46,41 +49,40 @@ public class RestaurantExandapleAdapter extends ExpandableRecyclerAdapter<Restau
         View view = LayoutInflater.
                 from(viewGroup.getContext()).inflate(R.layout.list_item_restaurant_item, viewGroup, false);
 
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Pass along the Database id of the view's object
-                customizeItem((int)v.getTag());
-            }
-        });
-
         return new RestaurantItemViewHolder(view);
     }
 
     @Override
-    public void onBindChildViewHolder(RestaurantItemViewHolder restaurantItemViewHolder, int i, Object o)
+    public void onBindChildViewHolder(final RestaurantItemViewHolder restaurantItemViewHolder, int i, Object o)
     {
-        StoreItem item = (StoreItem)o;
+        final StoreItem item = (StoreItem)o;
         restaurantItemViewHolder.ItemTitleTextView.setText(item.getName());
         restaurantItemViewHolder.ItemDescriptionTextView.setText(item.getDescription());
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         String moneyString = formatter.format(item.getPrice());
         restaurantItemViewHolder.ItemPriceTextView.setText(moneyString);
-        restaurantItemViewHolder.itemView.setTag(item.getId());
+        restaurantItemViewHolder.ItemRelativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Pass along the Database id of the view's object
+                customizeItem(item);
+            }
+        });
+
     }
 
-    public RestaurantExandapleAdapter(Context c, List<ParentObject> parents)
+    public RestaurantExandapleAdapter(Context c, List<ParentListItem> parents)
     {
-        super(c, parents);
+        super(parents);
 
         this.parents = parents;
         this.context = c;
     }
 
-    private void customizeItem(int id)
+    private void customizeItem(StoreItem thisItem)
     {
         Intent customizeIntent = new Intent(context, CustomizeItem.class);
-        customizeIntent.putExtra("Id", id);
+        customizeIntent.putExtra("ItemParcel", thisItem);
         context.startActivity(customizeIntent);
     }
 }

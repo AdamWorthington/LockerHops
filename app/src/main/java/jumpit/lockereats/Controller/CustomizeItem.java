@@ -2,10 +2,15 @@ package jumpit.lockereats.Controller;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -18,7 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jumpit.lockereats.Core.Adapters.CustomizeItemArrayAdapter;
+import jumpit.lockereats.Core.Singleton;
 import jumpit.lockereats.Model.FoodItemOption;
+import jumpit.lockereats.Model.Order;
+import jumpit.lockereats.Model.StoreItem;
 import jumpit.lockereats.R;
 
 public class CustomizeItem extends AppCompatActivity implements PropertyChangeListener
@@ -26,14 +34,29 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
     private CustomizeItemArrayAdapter contentAdapter = null;
     private double total = 0f;
     private int quantity = 1;
-    private LinearLayoutManager llm;
-    private RecyclerView configRecyclerView;
+    private StoreItem item;
+    private LinearLayoutManager llm = null;
+    private RecyclerView configRecyclerView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customize_item);
+
+        /*Recieve the intent from the restaurant menu and get selected item*/
+        Intent intent = getIntent();
+        item = intent.getParcelableExtra("ItemParcel");
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.customizeItemToolbar);
+        myToolbar.setTitle(item.getName());
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Spinner spinner = (Spinner) findViewById(R.id.orderQuantity);
         // Create an ArrayAdapter using the string array and a default spinner layout
@@ -45,7 +68,7 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View  view, int position, long id) {
                 onSpinnerChanged(parent, position);
             }
 
@@ -54,10 +77,6 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
 
             }
         });
-
-        /*Recieve the intent from the restaurant menu and get selected item*/
-        Intent intent = getIntent();
-        int id = intent.getIntExtra("Id", 0);
 
         /*Submit a query to recieve information concerning ingredients, etc*/
         List<String> optionNames = new ArrayList<String>();
@@ -88,6 +107,22 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
         configRecyclerView.setAdapter(contentAdapter);
 
         contentAdapter.addChangeListener(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void navigateBack()
+    {
+        this.finish();
     }
 
     private void onSpinnerChanged(AdapterView<?> parent, int position)
@@ -127,6 +162,9 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
         else
         {
             /* We are clear to add the order to the cart */
+            Order thisOrder = new Order(quantity, item, new ArrayList<FoodItemOption>(contentAdapter.getValues()));
+            Singleton.getInstance().addToCart(thisOrder);
+            this.finish();
         }
     }
 }

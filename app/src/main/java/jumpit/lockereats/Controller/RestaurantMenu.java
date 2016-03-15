@@ -1,6 +1,10 @@
 package jumpit.lockereats.Controller;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -11,8 +15,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
-import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
+import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +53,10 @@ public class RestaurantMenu extends AppCompatActivity
         CollapsingToolbarLayout ct = (CollapsingToolbarLayout) findViewById(R.id.menu_collapsing_bar);
         ct.setTitle(curRestaurant.getName());
 
+        Bitmap logo = BitmapFactory.decodeResource(getResources(), R.drawable.vonslogo);
+        ImageView logoView = (ImageView) findViewById(R.id.backdrop);
+        logoView.setImageBitmap(logo);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_cart);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,7 +70,7 @@ public class RestaurantMenu extends AppCompatActivity
         LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         listMenu.setLayoutManager(llm);
         ArrayList<StoreCategory> categories = curMenu.getCategories();
-        List<ParentObject> categoriesCasted = new ArrayList<>();
+        List<ParentListItem> categoriesCasted = new ArrayList<>();
         for(StoreCategory sc : categories)
             categoriesCasted.add(sc);
         RestaurantExandapleAdapter menuAdapter = new RestaurantExandapleAdapter(this, categoriesCasted);

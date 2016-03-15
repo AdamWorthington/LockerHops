@@ -1,6 +1,6 @@
 package jumpit.lockereats.Model;
 
-import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
+import com.bignerdranch.expandablerecyclerview.Model.ParentListItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by cdwil on 1/18/2016.
  */
-public class StoreCategory implements ParentObject
+public class StoreCategory implements ParentListItem
 {
     private String category;
     public String getCategory()
@@ -23,15 +23,20 @@ public class StoreCategory implements ParentObject
         this.category = category;
     }
 
-    @Override
-    public void setChildObjectList(List<Object> list)
+    public void setChildItemList(List<Object> list)
     {
         storeItems = list;
     }
 
     @Override
-    public List<Object> getChildObjectList()
+    public List<Object> getChildItemList()
     {
         return storeItems;
     }
+
+    @Override
+    public boolean isInitiallyExpanded() {
+        return false;
+    }
+
 }

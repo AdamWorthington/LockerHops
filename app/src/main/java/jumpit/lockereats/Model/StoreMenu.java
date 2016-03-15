@@ -1,7 +1,5 @@
 package jumpit.lockereats.Model;
 
-import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 

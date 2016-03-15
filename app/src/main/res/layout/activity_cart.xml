@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -14,30 +15,23 @@
         android:id="@+id/order_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
         <RelativeLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/checkout_items"
+            <android.support.v7.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Items"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
+                android:id="@+id/cart_list"/>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/darker_gray"
                 android:id="@+id/checkout_separator1"
-                android:layout_below="@id/checkout_items"
+                android:layout_below="@id/cart_list"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"/>
-
             <TextView
                 android:id="@+id/cart_subtotal_label"
                 android:layout_width="match_parent"
@@ -46,7 +40,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator1"/>
-
             <TextView
                 android:id="@+id/cart_subtotal"
                 android:layout_width="wrap_content"
@@ -56,7 +49,6 @@
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator1"
                 android:layout_alignParentRight="true"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -65,7 +57,6 @@
                 android:layout_below="@id/cart_subtotal"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"/>
-
             <TextView
                 android:id="@+id/process_fee_label"
                 android:layout_width="match_parent"
@@ -74,7 +65,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator2"/>
-
             <TextView
                 android:id="@+id/process_fee"
                 android:layout_width="wrap_content"
@@ -84,7 +74,6 @@
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator2"
                 android:layout_alignParentRight="true"/>
-
             <TextView
                 android:id="@+id/sales_tax_label"
                 android:layout_width="match_parent"
@@ -93,7 +82,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_below="@id/process_fee"/>
-
             <TextView
                 android:id="@+id/sales_tax"
                 android:layout_width="wrap_content"
@@ -103,7 +91,6 @@
                 android:textStyle="bold"
                 android:layout_below="@id/process_fee"
                 android:layout_alignParentRight="true"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -112,7 +99,6 @@
                 android:layout_below="@id/sales_tax_label"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"/>
-
             <TextView
                 android:id="@+id/cart_items"
                 android:layout_width="wrap_content"
@@ -121,7 +107,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator3"/>
-
             <TextView
                 android:id="@+id/cart_total"
                 android:layout_width="wrap_content"
@@ -131,7 +116,6 @@
                 android:textStyle="bold"
                 android:layout_below="@id/checkout_separator3"
                 android:layout_alignParentRight="true"/>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

@@ -6,7 +6,7 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.bignerdranch.expandablerecyclerview.ViewHolder.ChildViewHolder;
+import com.bignerdranch.expandablerecyclerview.ChildViewHolder;
 
 import jumpit.lockereats.R;
 

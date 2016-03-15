@@ -30,16 +30,6 @@
             android:name=".Controller.Home"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"/>
-
-        <meta-data
-            android:name="com.facebook.sdk.ApplicationId"
-            android:value="@string/facebook_app_id" />
-
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
         <activity
             android:name=".Controller.RestaurantMenu"
             android:label="@string/title_activity_home"
@@ -50,13 +40,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Controller.CustomizeItem"
-            android:label="@string/title_activity_checkout"
+            android:label="Customize"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.facebook.FacebookActivity"
-            android:configChanges=
-                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:label="@string/app_name" />
     </application>
 
 </manifest>

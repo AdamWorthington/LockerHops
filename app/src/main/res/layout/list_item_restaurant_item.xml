@@ -2,10 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#cbcbcb">
+    android:background="#cbcbcb"
+    android:id="@+id/list_item_restaurant_item_layout">
 
     <TextView
-        android:id="@+id/list_item_resetaurant_item_name"
+        android:id="@+id/list_item_restaurant_item_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
@@ -23,6 +24,6 @@
         android:layout_height="wrap_content"
         android:padding="8dp"
         android:text="Description"
-        android:layout_below="@id/list_item_resetaurant_item_name"/>
+        android:layout_below="@id/list_item_restaurant_item_name"/>
 
 </RelativeLayout>

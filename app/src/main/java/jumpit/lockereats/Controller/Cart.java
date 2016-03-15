@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +18,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import jumpit.lockereats.Core.Adapters.CartArrayAdapter;
+import jumpit.lockereats.Core.Adapters.CustomizeItemArrayAdapter;
 import jumpit.lockereats.Core.Singleton;
 import jumpit.lockereats.Model.Order;
 import jumpit.lockereats.Model.StoreItem;
@@ -47,40 +51,23 @@ public class Cart extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
-
-        Order cart = Singleton.getInstance().getOrder();
-        HashMap<StoreItem, Integer> items = cart.getOrderItems();
-        ArrayList<StoreItem> keys = new ArrayList<>(items.keySet());
-        ArrayList<Integer> vals = new ArrayList<>(items.values());
-        NumberFormat format = NumberFormat.getCurrencyInstance();
-
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < keys.size(); i++)
+        ArrayList<Order> cart = Singleton.getInstance().getCart();
+        for(Order o : cart)
         {
-            StoreItem current = keys.get(i);
-            Integer count = vals.get(i);
-            totalItemsOrdered += count.intValue();
-            subtotal += (current.getPrice() * count);
-
-            String name = current.getName();
-            String price = format.format(current.getPrice());
-            String num = String.valueOf(count);
-            sb.append(price);
-            sb.append(" ");
-            sb.append(name);
-            sb.append(" ");
-            sb.append("x");
-            sb.append(num);
-            sb.append("     ");
-            sb.append(price);
-            sb.append('\n');
+            totalItemsOrdered += o.getQuantity();
+            subtotal += o.calculatePrice();
         }
+
+        CartArrayAdapter contentAdapter = new CartArrayAdapter(cart, R.layout.layout_cart_item);
+        RecyclerView cartRecyclerView = (RecyclerView) findViewById(R.id.cart_list);
+        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        cartRecyclerView.setLayoutManager(llm);
+        cartRecyclerView.setAdapter(contentAdapter);
+
+        NumberFormat format = NumberFormat.getCurrencyInstance();
 
         TextView cartSubtotal = (TextView) findViewById(R.id.cart_subtotal);
         cartSubtotal.setText(format.format(subtotal));
-
-        TextView checkoutItems = (TextView) findViewById(R.id.checkout_items);
-        checkoutItems.setText(sb.toString());
 
         TextView processFee = (TextView) findViewById(R.id.process_fee);
         processFee.setText(format.format(processingfee));
@@ -113,7 +100,7 @@ public class Cart extends AppCompatActivity
         //   - PAYMENT_INTENT_ORDER to create a payment for authorization and capture
         //     later via calls from your server.
 
-        Order cart = Singleton.getInstance().getOrder();
+        /*Order cart = Singleton.getInstance().getOrder();
         PayPalPayment payment = new PayPalPayment(new BigDecimal((subtotal * salesTax) + subtotal + processingfee), "USD", cart.getSource().getName(),
                 PayPalPayment.PAYMENT_INTENT_SALE);
 
@@ -124,7 +111,7 @@ public class Cart extends AppCompatActivity
 
         intent.putExtra(PaymentActivity.EXTRA_PAYMENT, payment);
 
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, 0);*/
     }
 
     @Override

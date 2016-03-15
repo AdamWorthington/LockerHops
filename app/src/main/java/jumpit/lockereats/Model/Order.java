@@ -9,54 +9,43 @@ import java.util.HashMap;
  */
 public class Order
 {
-    private Date orderDate;
-    public Date getOrderDate()
+    private int quantity;
+    public int getQuantity()
     {
-        return orderDate;
+        return quantity;
     }
 
-    private HashMap<StoreItem, Integer> orderItems;
-    public HashMap<StoreItem, Integer> getOrderItems()
+    private StoreItem item;
+    public StoreItem getItem()
     {
-        return orderItems;
+        return item;
     }
 
-    private Restaurant source;
-    public Restaurant getSource()
+    private ArrayList<FoodItemOption> options;
+    public ArrayList<FoodItemOption> getOptions()
     {
-        return source;
+        return options;
     }
 
-    public Order(Restaurant source)
+    public Order(int quantity, StoreItem item, ArrayList<FoodItemOption> options)
     {
-        this.source = source;
-        orderItems = new HashMap<>();
+        this.quantity = quantity;
+        this.item = item;
+        this.options = options;
     }
 
-    public int addToOrder(StoreItem thisItem)
+    public double calculatePrice()
     {
-        int count = orderItems.containsKey(thisItem) ? orderItems.get(thisItem) : 0;
-        orderItems.put(thisItem, count + 1);
+        double basePrice = item.getPrice();
+        for(FoodItemOption option : options)
+        {
+            for(OptionItem oi : option.getOptions())
+            {
+                if(oi.getIsSelected())
+                    basePrice += oi.getPrice();
+            }
+        }
 
-        return count + 1;
-    }
-
-    public int removeFromOrder(StoreItem thisItem)
-    {
-        int count = orderItems.containsKey(thisItem) ? orderItems.get(thisItem) : 0;
-
-        if(count == 0)
-            return 0;
-        else if(count - 1 == 0)
-            orderItems.remove(thisItem);
-        else
-            orderItems.put(thisItem, count - 1);
-
-        return count - 1;
-    }
-
-    public int getCountOfItem(StoreItem thisItem)
-    {
-        return orderItems.containsKey(thisItem) ? orderItems.get(thisItem) : 0;
+        return basePrice * quantity;
     }
 }

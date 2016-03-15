@@ -102,11 +102,16 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
             View v = inflater.inflate(R.layout.layout_item_config_option_radio, holder.ItemListOptions, true);
             RadioGroup rg =  (RadioGroup) v.findViewById(R.id.config_option_radiogroup);
 
+            int internalPos = 0;
             for (OptionItem oi : thisOption.getOptions())
             {
-                    RadioButton radio_button = new RadioButton(rg.getContext());
-                    radio_button.setText(oi.getName());
-                    rg.addView(radio_button);
+                RadioButton radio_button = new RadioButton(rg.getContext());
+                radio_button.setText(oi.getName());
+                radio_button.setTag(R.id.option_item_position, position);
+                radio_button.setTag(R.id.option_item_internal_position, internalPos);
+                rg.addView(radio_button);
+
+                internalPos++;
             }
 
             rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -150,6 +155,15 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
     {
         holder.ItemChooseIndicatorTextView.setTextColor(Color.GREEN);
         //totalCost -= thisOptionItem.getPrice();
+
+        RadioButton b = (RadioButton) group.getChildAt(checkedId);
+        int optionPos = (int)b.getTag(R.id.option_item_position);
+        int optionInternalPos = (int)b.getTag(R.id.option_item_internal_position);
+        FoodItemOption thisOption = values.get(optionPos);
+        OptionItem thisOptionItem = thisOption.getOptions().get(optionInternalPos);
+
+        if(thisOption.getChoiceCount() == 0)
+            thisOption.incrementChoiceCount();
     }
 
     private void onItemClicked(View v, CustomizeItemViewHolder holder)
@@ -194,7 +208,8 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
             FoodItemOption option = values.get(i);
             //If we must choose a certain number of items for an option and this is not met,
             //quit immediately and notify caller.
-            if(!option.getCanChoose() && option.getChoiceCount() != option.getChooseLimit()) {
+            if(!option.getCanChoose() && option.getChoiceCount() != option.getChooseLimit() ||
+                    option.getCanChoose() && option.getChoiceCount() < option.getChooseMinimum()) {
                 position = i;
                 break;
             }
@@ -218,5 +233,9 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         return values.size();
     }
 
+    public List<FoodItemOption> getValues()
+    {
+        return values;
+    }
 }
 
