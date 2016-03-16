@@ -7,6 +7,12 @@ public class MyBean {
 
     private String myData;
 
+    private Boolean myBoolean;
+
+    public Boolean getMyBoolean() { return myBoolean; }
+
+    public void setMyBoolean(Boolean set) { myBoolean = set; }
+
     public String getData() {
         return myData;
     }
