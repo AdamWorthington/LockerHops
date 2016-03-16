@@ -1,13 +1,17 @@
 package jumpit.lockereats.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
 /**
  * Created by cdwil on 12/28/2015.
  */
-public class Order
+public class Order implements Parcelable
 {
     private int quantity;
     public int getQuantity()
@@ -47,5 +51,36 @@ public class Order
         }
 
         return basePrice * quantity;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // write your object's data to the passed-in Parcel
+    @Override
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(this.quantity);
+        out.writeParcelable(this.item, 0);
+        out.writeTypedList(this.options);
+    }
+
+    // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
+    public static final Parcelable.Creator<Order> CREATOR = new Parcelable.Creator<Order>() {
+        public Order createFromParcel(Parcel in) {
+            return new Order(in);
+        }
+
+        public Order[] newArray(int size) {
+            return new Order[size];
+        }
+    };
+
+    // constructor that takes a Parcel and makes StoreItem out of it
+    private Order(Parcel in) {
+        this.quantity = in.readInt();
+        this.item = in.readParcelable(StoreItem.class.getClassLoader());
+        this.options = in.createTypedArrayList(FoodItemOption.CREATOR);
     }
 }

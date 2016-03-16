@@ -82,6 +82,7 @@ public class RestaurantExandapleAdapter extends ExpandableRecyclerAdapter<Restau
     private void customizeItem(StoreItem thisItem)
     {
         Intent customizeIntent = new Intent(context, CustomizeItem.class);
+        customizeIntent.putExtra("IsEditMode", false);
         customizeIntent.putExtra("ItemParcel", thisItem);
         context.startActivity(customizeIntent);
     }

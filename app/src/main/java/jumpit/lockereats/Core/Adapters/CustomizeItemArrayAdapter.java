@@ -109,6 +109,7 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
                 radio_button.setText(oi.getName());
                 radio_button.setTag(R.id.option_item_position, position);
                 radio_button.setTag(R.id.option_item_internal_position, internalPos);
+                radio_button.setChecked(oi.getIsSelected());
                 rg.addView(radio_button);
 
                 internalPos++;
@@ -137,6 +138,8 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
                 NumberFormat formatter = NumberFormat.getCurrencyInstance();
                 String moneyString = formatter.format(oi.getPrice());
                 configOptionPriceView.setText(moneyString);
+                CheckBox checkbox = (CheckBox) vv.findViewById(R.id.config_option_checkbox);
+                checkbox.setChecked(oi.getIsSelected());
                 rl.setTag(R.id.option_item_position, position);
                 rl.setTag(R.id.option_item_internal_position, internalPos);
                 rl.setOnClickListener(new View.OnClickListener() {
@@ -154,13 +157,22 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
     private void OnCheckedChanged(RadioGroup group, int checkedId, CustomizeItemViewHolder holder)
     {
         holder.ItemChooseIndicatorTextView.setTextColor(Color.GREEN);
-        //totalCost -= thisOptionItem.getPrice();
 
-        RadioButton b = (RadioButton) group.getChildAt(checkedId);
+        RadioButton b = (RadioButton) group.findViewById(checkedId);
         int optionPos = (int)b.getTag(R.id.option_item_position);
         int optionInternalPos = (int)b.getTag(R.id.option_item_internal_position);
         FoodItemOption thisOption = values.get(optionPos);
+        for(OptionItem oi : thisOption.getOptions())
+        {
+            if(oi.getIsSelected())
+            {
+                oi.setIsSelected(false);
+                totalCost -= oi.getPrice();
+            }
+        }
         OptionItem thisOptionItem = thisOption.getOptions().get(optionInternalPos);
+        thisOptionItem.setIsSelected(true);
+        totalCost += thisOptionItem.getPrice();
 
         if(thisOption.getChoiceCount() == 0)
             thisOption.incrementChoiceCount();
@@ -179,7 +191,7 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
 
         CheckBox checkBox = (CheckBox) v.findViewById(R.id.config_option_checkbox);
         boolean isChecked = checkBox.isChecked();
-        thisOptionItem.setIsSelected(isChecked);
+        thisOptionItem.setIsSelected(!isChecked);
 
         if(isChecked)
         {

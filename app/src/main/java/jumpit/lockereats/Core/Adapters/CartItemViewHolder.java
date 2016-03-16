@@ -19,6 +19,7 @@ public class CartItemViewHolder extends ChildViewHolder
     public TextView ItemQuantityTextView;
     public TextView ItemPriceTextView;
     public ImageButton ItemRemoveButton;
+    public RelativeLayout ItemRelativeLayout;
 
     public CartItemViewHolder(View itemView)
     {
@@ -27,5 +28,6 @@ public class CartItemViewHolder extends ChildViewHolder
         ItemQuantityTextView = (TextView) itemView.findViewById(R.id.item_qty);
         ItemPriceTextView = (TextView) itemView.findViewById(R.id.item_price);
         ItemRemoveButton = (ImageButton) itemView.findViewById(R.id.remove_item);
+        ItemRelativeLayout = (RelativeLayout) itemView.findViewById(R.id.cart_item_rl);
     }
 }

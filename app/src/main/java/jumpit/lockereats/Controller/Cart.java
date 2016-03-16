@@ -10,9 +10,14 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -33,12 +38,13 @@ import com.paypal.android.sdk.payments.PaymentConfirmation;
 
 import org.json.JSONException;
 
-public class Cart extends AppCompatActivity
+public class Cart extends AppCompatActivity implements PropertyChangeListener
 {
     private float subtotal = 0.0f;
     private int totalItemsOrdered = 0;
     private final float processingfee = 0.75f;
     private final float salesTax = .07f;
+    private CartArrayAdapter contentAdapter;
     private static PayPalConfiguration config = new PayPalConfiguration()
 
             // Start with mock environment.  When ready, switch to sandbox (ENVIRONMENT_SANDBOX)
@@ -49,20 +55,55 @@ public class Cart extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.cartToolbar);
+        myToolbar.setTitle("Order Summary");
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         ArrayList<Order> cart = Singleton.getInstance().getCart();
+        contentAdapter = new CartArrayAdapter(cart, R.layout.layout_cart_item, this);
+        contentAdapter.addChangeListener(this);
+        RecyclerView cartRecyclerView = (RecyclerView) findViewById(R.id.cart_list);
+        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        cartRecyclerView.setLayoutManager(llm);
+        cartRecyclerView.setAdapter(contentAdapter);
+
+        configureViews();
+
+        Intent intent = new Intent(this, PayPalService.class);
+        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
+        startService(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void configureViews()
+    {
+        ArrayList<Order> cart = Singleton.getInstance().getCart();
+        subtotal = 0;
+        totalItemsOrdered = 0;
         for(Order o : cart)
         {
             totalItemsOrdered += o.getQuantity();
             subtotal += o.calculatePrice();
         }
-
-        CartArrayAdapter contentAdapter = new CartArrayAdapter(cart, R.layout.layout_cart_item);
-        RecyclerView cartRecyclerView = (RecyclerView) findViewById(R.id.cart_list);
-        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        cartRecyclerView.setLayoutManager(llm);
-        cartRecyclerView.setAdapter(contentAdapter);
 
         NumberFormat format = NumberFormat.getCurrencyInstance();
 
@@ -80,10 +121,6 @@ public class Cart extends AppCompatActivity
 
         TextView cartItems = (TextView) findViewById(R.id.cart_items);
         cartItems.setText(String.valueOf(totalItemsOrdered) + " Items");
-
-        Intent intent = new Intent(this, PayPalService.class);
-        intent.putExtra(PayPalService.EXTRA_PAYPAL_CONFIGURATION, config);
-        startService(intent);
     }
 
     @Override
@@ -116,7 +153,8 @@ public class Cart extends AppCompatActivity
 
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK)
+        {
             PaymentConfirmation confirm = data.getParcelableExtra(PaymentActivity.EXTRA_RESULT_CONFIRMATION);
             if (confirm != null) {
                 try {
@@ -131,11 +169,29 @@ public class Cart extends AppCompatActivity
                 }
             }
         }
-        else if (resultCode == Activity.RESULT_CANCELED) {
+        else if (resultCode == Activity.RESULT_CANCELED)
+        {
             Log.i("paymentExample", "The user canceled.");
         }
-        else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID) {
+        else if (resultCode == PaymentActivity.RESULT_EXTRAS_INVALID)
+        {
             Log.i("paymentExample", "An invalid Payment or PayPalConfiguration was submitted. Please see the docs.");
         }
+        else if (resultCode == CartArrayAdapter.RESULT_CUSTOMIZE_ITEM)
+        {
+            Order returnOrder = data.getParcelableExtra("Order");
+            int orderPos = data.getIntExtra("OrderPos", 0);
+
+            Singleton.getInstance().removeFromCartAt(orderPos);
+            Singleton.getInstance().addToCart(orderPos, returnOrder);
+            configureViews();
+            contentAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent event)
+    {
+        configureViews();
     }
 }

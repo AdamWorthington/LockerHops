@@ -101,13 +101,28 @@ public class Singleton
         cart.add(thisOrder);
     }
 
+    public void addToCart(int position, Order thisOrder)
+    {
+        cart.add(position, thisOrder);
+    }
+
     public void removeFromCart(Order thisOrder)
     {
         cart.remove(thisOrder);
     }
 
+    public void removeFromCartAt(int position)
+    {
+        cart.remove(position);
+    }
+
     public ArrayList<Order> getCart()
     {
         return cart;
+    }
+
+    public Order getOrderFromCart(int position)
+    {
+        return cart.get(position);
     }
 }
