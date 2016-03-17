@@ -134,7 +134,7 @@ public class Item {
 
 		//The SQL query to update this order's information
 		String query = "INSERT INTO Restaurant_Items " + 
-				"(`Restaurant`, `Item`, `Description`, `Cost`, `Category`, `Sub-Category`, `Ingredients`, `Gluten-Free`, `Vegetarian`, `Vegan`) VALUES " + 
+				"(`Restaurant`, `Item`, `Description`, `ItemCost`, `Category`, `Sub-Category`, `Ingredients`, `Gluten-Free`, `Vegetarian`, `Vegan`) VALUES " +
 				"(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
 		//Check we can get the driver
@@ -161,7 +161,7 @@ public class Item {
 			System.out.println("SUCCESS");
 
 			//Add values to the prepared statement
-			//Restaurant, Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan
+			//Restaurant, Item, Description, ItemCost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan
 			System.out.print("Setting statement values: ");
 			stmt.setString(1, this.restaurant);
 			System.out.print("1 ");
@@ -239,16 +239,16 @@ public class Item {
 		Connection			conn	= null;
 
 		//The SQL query to update this order's information
-		String query = "SELECT Restaurant, Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan "
+		String query = "SELECT Restaurant, Item, Description, ItemCost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan "
 				+ "FROM Restaurant_Items ";
 
 		boolean first = true;
 		String addWhere			= "WHERE ";
 		String addRestaurant 	= "Restaurant=? ";
 		String addItem 			= "Item=? ";
-		String addCost 			= "Cost=? ";
-		String addCostLess 		= "Cost<? ";
-		String addCostGreater 	= "Cost>? ";
+		String addCost 			= "ItemCost=? ";
+		String addCostLess 		= "ItemCost<? ";
+		String addCostGreater 	= "ItemCost>? ";
 		String addCategory 		= "Category=? ";
 		String addSubCategory 	= "Sub-Category=? ";
 		String addIngredient 	= " ";		//May be added more than 1 time for multiple ingredients
@@ -387,7 +387,7 @@ public class Item {
 
 			//Add values to the prepared statement
 			int count = 1;
-			//restaurant, item, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan
+			//restaurant, item, itemcost, category, subCategory, ingredients, glutenFree, vegetarian, vegan
 			System.out.print("Setting statement values in getRestaurantItems: ");
 			if (stringIsValid(this.restaurant)) {
 				stmt.setString(count, this.restaurant);
@@ -442,7 +442,7 @@ public class Item {
 				name 		= rs.getString("Restaurant");
 				itemName	= rs.getString("Item");
 				description	= rs.getString("Description");
-				cost 		= rs.getDouble("Cost");
+				cost 		= rs.getDouble("ItemCost");
 				category 	= rs.getString("Category");
 				subCategory = rs.getString("Sub-Category");
 

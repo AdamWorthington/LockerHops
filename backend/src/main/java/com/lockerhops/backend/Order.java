@@ -10,8 +10,11 @@ import java.util.ArrayList;
 public class Order {
 	int			id;				//ID of the order (assigned by the database, -1 indicated unassigned)
 	String		restaurant;		//Name of the restaurant to which this order is being placed
-	String[]	items;			//Array of orders
+	int[]		items;			//Array of item id's in this order
 	double		cost;			//Dollar/cent cost of order (minimum $00.00, maximum $9999.99)
+
+	String				timePlacedInLocker;
+	ArrayList<Item>		orderItems;		//Used only when selecting the orders from the database
 	//If cost is ever going to be > 1,000,000 move this to BigDecimal
 
 	//Database information
@@ -22,11 +25,22 @@ public class Order {
 	static final String driver 		= DatabaseAccessors.driver;
 	static final String jdbcUrl 	= DatabaseAccessors.jdbcUrl;
 
-	public Order(String restaurant, String[] items, double cost) {
+	public Order(String restaurant, int[] items, double cost) {
 		this.id			= -1;
 		this.restaurant = restaurant;
 		this.items 		= items;
 		this.cost 		= cost;
+		this.orderItems = null;
+		this.timePlacedInLocker = null;
+	}
+
+	public Order (int id, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker) {
+		this.id 			= id;
+		this.restaurant 	= restaurant;
+		this.items 			= null;
+		this.cost 			= cost;
+		this.orderItems 	= items;
+		this.timePlacedInLocker = timePlacedInLocker;
 	}
 
 	/*
@@ -43,8 +57,8 @@ public class Order {
 			return false;
 		}
 
-		for (String item : this.items) {
-			if (item == null || item == "") {
+		for (int item : this.items) {
+			if (item < 0) {
 				System.out.println("Order has malformed item");
 				return false;
 			}
@@ -66,7 +80,7 @@ public class Order {
 		return this.restaurant;
 	}
 
-	public String[] getItems() {
+	public int[] getItems() {
 		return this.items;
 	}
 
@@ -110,10 +124,7 @@ public class Order {
 
 		//The SQL query that will place the order's values into the DB
 		String				query	= "INSERT INTO Orders (`Restaurant`, `Cost`) VALUES (?, ?);";	
-		String				query2	= "INSERT INTO Order_Items (`OrderID`, `Item`) VALUES (?, ?);";
-
-		//Formats the array of items into a single string where each item is separated by a comma
-		String				items	= String.join(",", this.items);
+		String				query2	= "INSERT INTO Order_Items (`OrderID`, `ItemID`) VALUES (?, ?);";
 
 		//Load the driver for this class
 		try {
@@ -165,7 +176,7 @@ public class Order {
 			}
 
 			//Prepare the queries for each item
-			for (String item : this.items) {
+			for (int item : this.items) {
 				System.out.print("Preparing statement 2 in placeOrder: ");
 				stmt = conn.prepareStatement(query2);
 				System.out.println("SUCCESS");
@@ -173,10 +184,10 @@ public class Order {
 				System.out.print("Setting statement 2 values in placeOrder: ");
 				stmt.setInt(1, this.id);
 				System.out.print("1 ");
-				stmt.setString(2, item);
+				stmt.setInt(2, item);
 				System.out.println("2");
 
-				System.out.print("Executing statement 2 (" + item + ") in placeOrder: ");
+				System.out.print("Executing statement 2 (ItemID: " + item + ") in placeOrder: ");
 				ret = stmt.executeUpdate();
 
 				if (ret <= 0) {
@@ -327,10 +338,17 @@ public class Order {
 		Connection conn	= null;
 
 		//The SQL query to update this order's information
-		String 	query = "SELECT * " + 
-						"FROM Orders " + 
-						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " + 
-						"WHERE Restaurant = ? AND TimePickedUp IS NULL";
+		//String 	query = "SELECT * " +
+		//				"FROM Orders " +
+		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
+
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, " +
+				"			ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
+						"FROM Orders " +
+						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+						"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
+						"WHERE Orders.Restaurant = ? AND Orders.TimePickedUp IS NULL";
 
 		//Check we can get the driver
 		try {
@@ -366,16 +384,69 @@ public class Order {
 			
 			ArrayList<Order> orderList = new ArrayList<Order>();
 
-			//TODO: Figure out how to get orders and their respective items together out of the database
+
+			//SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker
+			//ri.Item, ri.Description, ri.ItemCost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
+			int 	orderID 				= 0;
+			String 	orderRestaurantName 	= null;
+			String 	orderDate 				= null;
+			double 	orderCost 				= 0.00;
+			String 	orderTimePlacedInLocker = null;
+
+			ArrayList<Item> orderItems = new ArrayList<Item>();
+			String orderItemName 		= null;
+			String orderItemDescription = null;
+			double orderItemCost 		= 0.00;
+			String orderItemCategory 	= null;
+			String orderItemSubCategory = null;
+			String orderItemIngredients = null;
+			boolean orderItemGluten 	= false;
+			boolean orderItemVegetarian = false;
+			boolean orderItemVegan 		= false;
+
+			int lastOrderNumber = 0;
 			while(rs.next()) {
-				
+				int number = rs.getInt("OrderID");
+
+				//We have moved on to a new order
+				if (number != lastOrderNumber) {
+					if (lastOrderNumber != 0) {
+						//int id, String restaurant, double cost, Item[] items
+						Order order = new Order(orderID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker);
+						orderList.add(order);
+
+						orderItems = new ArrayList<Item>();
+					}
+
+					lastOrderNumber = number;
+					orderRestaurantName = rs.getString("Restaurant");
+					orderDate = rs.getString("Date");
+					orderCost = rs.getDouble("Cost");
+					orderTimePlacedInLocker = rs.getString("TimePlacedInLocker");
+				}
+
+				//orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory
+				//orderItemIngredients, orderItemGluten, orderItemVegetarian, orderItemVegan
+				orderItemName = rs.getString("Item");
+				orderItemDescription = rs.getString("Description");
+				orderItemCost = rs.getDouble("ItemCost");
+				orderItemCategory = rs.getString("Category");
+				orderItemSubCategory = rs.getString("Sub-Category");
+				orderItemIngredients = rs.getString("Ingredients");
+				orderItemGluten = rs.getBoolean("Gluten-Free");
+				orderItemVegetarian = rs.getBoolean("Vegetarian");
+				orderItemVegan = rs.getBoolean("Vegan");
+
+				//						Restaurant, 			Item, 		Description, 			ItemCost, 	Category, 			Sub-Category, 			Ingredients, 		Gluten-Free, 		Vegetarian		 Vegan
+				Item item = new Item(orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
+				orderItems.add(item);
 			}
 			if (orderList.size() != 0) {
 				System.out.println("SUCCESS");
 				return orderList;
 			}
 			else {
-				System.out.println("FAILURE");
+				System.out.println("FAILURE: NO ORDERS MATCH");
 				return null;
 			}
 		}

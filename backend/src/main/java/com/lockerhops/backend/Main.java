@@ -67,7 +67,7 @@ public class Main {
 	
 	public static boolean testOrderPlacement() {
 		String restaurant = "Vans2";
-		String[] items = { "Panini", "Soda", "Mustard", "Ketchup" };
+		int[] items = { 0, 1, 2, 3 };
 		double cost = 99.55;
 		String datetime = "2015-12-27 02:37:55";	//Datetime: YYYY-MM-DD HH:MM:SS
 		Order order = new Order(restaurant, items, cost);
