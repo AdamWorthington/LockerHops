@@ -102,7 +102,7 @@ public class Item {
 	 * Generic method for checking validity of string arguments
 	 */
 	public static boolean stringIsValid(String s) {
-		if (s == null || s == "") return false;
+		if (s == null || s.equals("")) return false;
 		return true;
 	}
 	
@@ -459,9 +459,9 @@ public class Item {
 					ingredients = null;
 				}
 
-				glutenFree	= (rs.getInt("") == 1) ? true : false;
-				vegetarian 	= (rs.getInt("") == 1) ? true : false;
-				vegan 		= (rs.getInt("") == 1) ? true : false;
+				glutenFree	= (rs.getInt("Gluten-Free") == 1);
+				vegetarian 	= (rs.getInt("Vegetarian") == 1);
+				vegan 		= (rs.getInt("Vegan") == 1);
 
 				Item i = new Item(itemID, name, itemName, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
 				items.add(i);

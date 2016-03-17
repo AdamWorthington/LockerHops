@@ -47,7 +47,7 @@ public class Order {
 	 * Indicates if the fields in the order contain values that can be correct
 	 */
 	public boolean isWellFormed() {
-		if (this.restaurant == null || this.restaurant == "") {
+		if (this.restaurant == null || this.restaurant.equals("")) {
 			System.out.println("Order has bad restaurant");
 			return false;
 		}
@@ -100,7 +100,7 @@ public class Order {
 	 * Generic method for checking validity of string arguments
 	 */
 	public static boolean stringIsValid(String s) {
-		if (s == null || s == "") return false;
+		if (s == null || s.equals("")) return false;
 		return true;
 	}
 
@@ -247,7 +247,7 @@ public class Order {
 		}
 
 		//Validate datetime
-		if (datetime == null || datetime == "") {
+		if (datetime == null || datetime.equals("")) {
 			System.out.println("Invalid DateTime in updateOrderTime (type: " + type + ")");
 			return false;
 		}
@@ -344,7 +344,7 @@ public class Order {
 		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
 
 		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, " +
-				"			ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
+				"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
 						"FROM Orders " +
 						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
 						"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
@@ -394,6 +394,7 @@ public class Order {
 			String 	orderTimePlacedInLocker = null;
 
 			ArrayList<Item> orderItems = new ArrayList<Item>();
+			int orderItemID 			= -1;
 			String orderItemName 		= null;
 			String orderItemDescription = null;
 			double orderItemCost 		= 0.00;
@@ -427,6 +428,7 @@ public class Order {
 
 				//orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory
 				//orderItemIngredients, orderItemGluten, orderItemVegetarian, orderItemVegan
+				orderItemID = rs.getInt("ItemID");
 				orderItemName = rs.getString("Item");
 				orderItemDescription = rs.getString("Description");
 				orderItemCost = rs.getDouble("ItemCost");
@@ -437,8 +439,8 @@ public class Order {
 				orderItemVegetarian = rs.getBoolean("Vegetarian");
 				orderItemVegan = rs.getBoolean("Vegan");
 
-				//						Restaurant, 			Item, 		Description, 			ItemCost, 	Category, 			Sub-Category, 			Ingredients, 		Gluten-Free, 		Vegetarian		 Vegan
-				Item item = new Item(orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
+				//									Restaurant, 			Item, 		Description, 			ItemCost, 	Category, 			Sub-Category, 			Ingredients, 		Gluten-Free, 		Vegetarian		 Vegan
+				Item item = new Item(orderItemID, orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
 				orderItems.add(item);
 			}
 			if (orderList.size() != 0) {
