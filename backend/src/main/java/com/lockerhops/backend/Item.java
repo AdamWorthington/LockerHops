@@ -1,8 +1,10 @@
 package com.lockerhops.backend;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -15,7 +17,8 @@ public class Item {
 	static final String password 	= DatabaseAccessors.password;
 	static final String driver 		= DatabaseAccessors.driver;
 	static final String jdbcUrl 	= DatabaseAccessors.jdbcUrl;
-	
+
+	int			itemID;
 	String 		restaurant;		//Name of the restaurant (limit 40 characters)
 	String 		item;			//Name of the item (limit 45 characters)
 	String 		description;	//Description of the item (limit 280 characters)
@@ -30,6 +33,7 @@ public class Item {
 	boolean 	vegan		= false;	//Is this item vegan? (OPTIONAL)
 	
 	public Item(
+			int 		id,
 			String 		restaurant,
 			String 		item,
 			String 		description,
@@ -41,6 +45,7 @@ public class Item {
 			boolean 	vegetarian,
 			boolean 	vegan
 		) {
+		this.itemID			= id;
 		this.restaurant 	= restaurant;
 		this.item 			= item;
 		this.description 	= description;
@@ -239,7 +244,7 @@ public class Item {
 		Connection			conn	= null;
 
 		//The SQL query to update this order's information
-		String query = "SELECT Restaurant, Item, Description, ItemCost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan "
+		String query = "SELECT ItemID, Restaurant, Item, Description, ItemCost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan "
 				+ "FROM Restaurant_Items ";
 
 		boolean first = true;
@@ -423,15 +428,14 @@ public class Item {
 			System.out.println();
 
 			System.out.print("QUERY IS: " + stmt.toString());
-			return null;
 
-			/*
 			//Execute the statement to insert this order into the database
 			System.out.print("Executing statement in getRestaurantItems: ");
 			ResultSet rs = stmt.executeQuery();
 
 			//Item, Description, Cost, Category, Sub-Category, Ingredients, Gluten-Free, Vegetarian, Vegan
 			ArrayList<Item> items = new ArrayList<Item>();
+			int itemID;
 			String name, itemName, description, category, subCategory;
 			double cost;
 			String[] ingredients;
@@ -439,6 +443,7 @@ public class Item {
 				boolean glutenFree, vegetarian, vegan;
 
 				//Retrieve values from ResultSet and build the array of Items for this restaurant
+				itemID		= rs.getInt("ItemID");
 				name 		= rs.getString("Restaurant");
 				itemName	= rs.getString("Item");
 				description	= rs.getString("Description");
@@ -446,19 +451,23 @@ public class Item {
 				category 	= rs.getString("Category");
 				subCategory = rs.getString("Sub-Category");
 
-				Array ingrTemp = rs.getArray("Ingredients");
-				ingredients = (String[]) ingrTemp.getArray();
+				String ingr = rs.getString("Ingredients");
+				if (ingr != null) {
+					ingredients = ingr.split(",");
+				}
+				else {
+					ingredients = null;
+				}
 
 				glutenFree	= (rs.getInt("") == 1) ? true : false;
 				vegetarian 	= (rs.getInt("") == 1) ? true : false;
 				vegan 		= (rs.getInt("") == 1) ? true : false;
 
-				Item i = new Item(name, itemName, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
+				Item i = new Item(itemID, name, itemName, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
 				items.add(i);
 			}
 			System.out.println("SUCCESS");
 			return items;
-			 */
 		}
 		catch(SQLException e) {
 			System.out.println("Unable to create and execute statement in getRestaurantItems:    ");
