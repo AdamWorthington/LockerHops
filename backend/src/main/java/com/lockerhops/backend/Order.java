@@ -109,11 +109,11 @@ public class Order {
 	 * @param order: the order to be placed in the database
 	 * Returns true if successfully entered into DB, false otherwise
 	 */
-	public boolean placeOrder() {
+	public int placeOrder() {
 
 		//If the order is not well formed we should not do anything with it
 		if (!this.isWellFormed()) {
-			return false;
+			return -1;
 		}
 
 		//The prepared statement for this order
@@ -135,7 +135,7 @@ public class Order {
 		catch (ClassNotFoundException e) {
 			System.out.println("Cannot find the driver in the classpath (placeOrder):    ");
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
 
 		try {
@@ -172,7 +172,7 @@ public class Order {
 				System.out.println("SUCCESS (Order ID:" + orderID + ")");
 			}
 			else {
-				return false;
+				return -1;
 			}
 
 			//Prepare the queries for each item
@@ -192,19 +192,19 @@ public class Order {
 
 				if (ret <= 0) {
 					System.out.println("FAILURE");
-					return false;
+					return -1;
 				}
 				System.out.println("SUCCESS");
 			}
 			stmt.close();
+
+			return orderID;
 		}
 		catch(SQLException e) {
 			System.out.println("Unable to create and execute statement (placeOrder):    ");
 			e.printStackTrace();
-			return false;
+			return -1;
 		}
-
-		return true;
 	}
 
 	/*
