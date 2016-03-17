@@ -57,7 +57,7 @@ public class LockerHopsAPI {
 
     //Will attempt to place an order with the given parameters. Returns a MyBean with myBoolean set to true on success and false on failure
     @ApiMethod(name = "Order.placeOrder", httpMethod = "get")
-    public MyBean placeOrder(@Named("id") Integer id, @Named("restaurant") String restaurant, @Named("items") String[] items, @Named("cost") Double cost) throws NotFoundException {
+    public MyBean placeOrder(@Named("id") Integer id, @Named("restaurant") String restaurant, @Named("items") int[] items, @Named("cost") Double cost) throws NotFoundException {
         MyBean ret = new MyBean();
         try {
             Order insert = new Order(restaurant, items, cost);
@@ -117,7 +117,7 @@ public class LockerHopsAPI {
                                     @Nullable @Named("isVegetarian") Boolean isVegetarian, @Nullable @Named("isVegan") Boolean isVegan) {
         MyBean ret = new MyBean();
         try {
-            Item insert = new Item(restaurant, item, description, cost, category, subCategory, ingredients, isGlutenFree, isVegetarian, isVegan);
+            Item insert = new Item(0, restaurant, item, description, cost, category, subCategory, ingredients, isGlutenFree, isVegetarian, isVegan);
             ret.setMyBoolean(insert.addRestaurantItem());
         }
         catch (Exception e) {
@@ -137,7 +137,7 @@ public class LockerHopsAPI {
                                               @Nullable @Named("isVegetarian") Boolean isVegetarian, @Nullable @Named("isVegan") Boolean isVegan) {
         ArrayList<Item> ret = new ArrayList<Item>();
         try {
-            Item search = new Item(restaurant, item, description, cost, category, subCategory, ingredients, isGlutenFree, isVegetarian, isVegan);
+            Item search = new Item(0, restaurant, item, description, cost, category, subCategory, ingredients, isGlutenFree, isVegetarian, isVegan);
             ret = search.getRestaurantItems();
         }
         catch (Exception e) {

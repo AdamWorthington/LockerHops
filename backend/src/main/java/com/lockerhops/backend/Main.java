@@ -59,7 +59,7 @@ public class Main {
 	}
 	
 	public static boolean testGetRestaurantItems() {
-		Item item = new Item("Vans", "Panini", "", 12.99, "Lunch", "American", null, true, true, true);
+		Item item = new Item(0, "Vans", "Panini", "", 12.99, "Lunch", "American", null, true, true, true);
 		item.getRestaurantItems();
 		
 		return true;
@@ -71,7 +71,7 @@ public class Main {
 		double cost = 99.55;
 		String datetime = "2015-12-27 02:37:55";	//Datetime: YYYY-MM-DD HH:MM:SS
 		Order order = new Order(restaurant, items, cost);
-		if (!order.placeOrder()) {
+		if (order.placeOrder() == -1) {
 			return false;
 		}
 		if (!order.updateTimePlacedInLocker(datetime)) {
@@ -96,7 +96,7 @@ public class Main {
 		boolean 	vegetarian = false;
 		boolean 	vegan = false;
 
-		Item food = new Item(restaurant, item, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
+		Item food = new Item(0, restaurant, item, description, cost, category, subCategory, ingredients, glutenFree, vegetarian, vegan);
 
 		return food.addRestaurantItem();
 	}
