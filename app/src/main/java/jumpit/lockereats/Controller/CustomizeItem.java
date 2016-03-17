@@ -65,6 +65,7 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
     private void createEditLayout(Intent intent)
     {
         order = intent.getParcelableExtra("Order");
+        item = order.getItem();
         orderPos = intent.getIntExtra("OrderPos", 0);
 
         Toolbar myToolbar = (Toolbar) findViewById(R.id.customizeItemToolbar);
@@ -202,14 +203,14 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
     {
         total = (double)event.getNewValue();
 
-        String moneyString = NumberFormat.getCurrencyInstance().format(total * quantity);
+        String moneyString = NumberFormat.getCurrencyInstance().format((total + item.getPrice()) * quantity);
         TextView totalTextView = (TextView) findViewById(R.id.itemSubtotal);
         totalTextView.setText(moneyString);
     }
 
     private void calculateTotal()
     {
-        String moneyString = NumberFormat.getCurrencyInstance().format(total * quantity);
+        String moneyString = NumberFormat.getCurrencyInstance().format((total + item.getPrice())* quantity);
         TextView totalTextView = (TextView) findViewById(R.id.itemSubtotal);
         totalTextView.setText(moneyString);
     }
@@ -233,6 +234,7 @@ public class CustomizeItem extends AppCompatActivity implements PropertyChangeLi
     private void updateCart(View v)
     {
         Intent resultData = new Intent();
+        order.setQuantity(quantity);
         resultData.putExtra("Order", order);
         resultData.putExtra("OrderPos", orderPos);
         setResult(CartArrayAdapter.RESULT_CUSTOMIZE_ITEM, resultData);

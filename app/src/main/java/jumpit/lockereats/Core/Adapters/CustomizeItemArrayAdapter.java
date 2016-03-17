@@ -103,14 +103,19 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
             RadioGroup rg =  (RadioGroup) v.findViewById(R.id.config_option_radiogroup);
 
             int internalPos = 0;
-            for (OptionItem oi : thisOption.getOptions())
+            for (int i = 0; i < thisOption.getOptions().size(); i++)
             {
+                OptionItem oi = thisOption.getOptions().get(i);
                 RadioButton radio_button = new RadioButton(rg.getContext());
                 radio_button.setText(oi.getName());
                 radio_button.setTag(R.id.option_item_position, position);
                 radio_button.setTag(R.id.option_item_internal_position, internalPos);
-                radio_button.setChecked(oi.getIsSelected());
                 rg.addView(radio_button);
+                if(oi.getIsSelected())
+                {
+                    setTotalCost(totalCost += oi.getPrice());
+                    rg.check(((RadioButton) rg.getChildAt(i)).getId());
+                }
 
                 internalPos++;
             }
@@ -140,6 +145,8 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
                 configOptionPriceView.setText(moneyString);
                 CheckBox checkbox = (CheckBox) vv.findViewById(R.id.config_option_checkbox);
                 checkbox.setChecked(oi.getIsSelected());
+                if(oi.getIsSelected())
+                    setTotalCost(totalCost += oi.getPrice());
                 rl.setTag(R.id.option_item_position, position);
                 rl.setTag(R.id.option_item_internal_position, internalPos);
                 rl.setOnClickListener(new View.OnClickListener() {
@@ -154,7 +161,7 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         }
     }
 
-    private void OnCheckedChanged(RadioGroup group, int checkedId, CustomizeItemViewHolder holder)
+    private void OnCheckedChanged(RadioGroup group, int checkedId, final CustomizeItemViewHolder holder)
     {
         holder.ItemChooseIndicatorTextView.setTextColor(Color.GREEN);
 
@@ -162,8 +169,9 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         int optionPos = (int)b.getTag(R.id.option_item_position);
         int optionInternalPos = (int)b.getTag(R.id.option_item_internal_position);
         FoodItemOption thisOption = values.get(optionPos);
-        for(OptionItem oi : thisOption.getOptions())
+        for(int i = 0; i < thisOption.getOptions().size(); i++)
         {
+            OptionItem oi = thisOption.getOptions().get(i);
             if(oi.getIsSelected())
             {
                 oi.setIsSelected(false);
@@ -172,7 +180,7 @@ public class CustomizeItemArrayAdapter extends RecyclerView.Adapter<CustomizeIte
         }
         OptionItem thisOptionItem = thisOption.getOptions().get(optionInternalPos);
         thisOptionItem.setIsSelected(true);
-        totalCost += thisOptionItem.getPrice();
+        setTotalCost(totalCost + thisOptionItem.getPrice());
 
         if(thisOption.getChoiceCount() == 0)
             thisOption.incrementChoiceCount();

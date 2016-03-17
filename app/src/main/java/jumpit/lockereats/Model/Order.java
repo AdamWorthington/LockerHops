@@ -18,6 +18,10 @@ public class Order implements Parcelable
     {
         return quantity;
     }
+    public void setQuantity(int quantity)
+    {
+        this.quantity = quantity;
+    }
 
     private StoreItem item;
     public StoreItem getItem()
