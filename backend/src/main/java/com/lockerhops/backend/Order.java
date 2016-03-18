@@ -18,10 +18,6 @@ public class Order {
 	//If cost is ever going to be > 1,000,000 move this to BigDecimal
 
 	//Database information
-	static final String url 		= DatabaseAccessors.url;
-	static final String dbName 		= DatabaseAccessors.dbName;
-	static final String username 	= DatabaseAccessors.username;
-	static final String password 	= DatabaseAccessors.password;
 	static final String driver 		= DatabaseAccessors.driver;
 	static final String jdbcUrl 	= DatabaseAccessors.jdbcUrl;
 
