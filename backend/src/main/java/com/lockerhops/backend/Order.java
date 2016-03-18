@@ -458,4 +458,135 @@ public class Order {
 			return null;
 		}
 	}
+
+	public static Order getOrder(int id) {
+		//PERFORM ARGUMENT VALIDATION HERE
+		if (id > 0) {
+			System.out.println("Invalid orderID (" + id + ") in getOrder");
+			return null;
+		}
+
+
+
+		//The prepared statement for this order
+		PreparedStatement stmt	= null;
+
+		//The connection to the database
+		Connection conn	= null;
+
+		//The SQL query to update this order's information
+		//String 	query = "SELECT * " +
+		//				"FROM Orders " +
+		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
+
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, " +
+						"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
+						"FROM Orders " +
+						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+						"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
+						"WHERE Orders.OrderID = ?";
+
+		//Check we can get the driver
+		try {
+			System.out.print("Checking driver: ");
+			Class.forName(driver);
+			System.out.println("SUCCESS");
+		}
+		catch (ClassNotFoundException e) {
+			System.out.println("Cannot find the driver in the classpath:    ");
+			e.printStackTrace();
+			return null;
+		}
+
+		try {
+			//Acquire a connection using the specified driver
+			System.out.print("Creating connection: ");
+			conn = DriverManager.getConnection(jdbcUrl);
+			System.out.println("SUCCESS");
+
+			//Prepare the statement based on the given query
+			System.out.print("Preparing statement: ");
+			stmt = conn.prepareStatement(query);
+			System.out.println("SUCCESS");
+
+			//Add values to the prepared statement
+			System.out.print("Setting statement values: ");
+			System.out.println("1");
+			stmt.setInt(1, id);
+
+			//Execute the statement to insert this order into the database
+			System.out.print("Executing statement: ");
+			ResultSet rs = stmt.executeQuery();
+
+			//SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker
+			//ri.Item, ri.Description, ri.ItemCost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
+			Order 	order 					= null;
+			int 	orderID 				= 0;
+			String 	orderRestaurantName 	= null;
+			String 	orderDate 				= null;
+			double 	orderCost 				= 0.00;
+			String 	orderTimePlacedInLocker = null;
+
+			ArrayList<Item> orderItems = new ArrayList<Item>();
+			int orderItemID 			= -1;
+			String orderItemName 		= null;
+			String orderItemDescription = null;
+			double orderItemCost 		= 0.00;
+			String orderItemCategory 	= null;
+			String orderItemSubCategory = null;
+			String orderItemIngredients = null;
+			boolean orderItemGluten 	= false;
+			boolean orderItemVegetarian = false;
+			boolean orderItemVegan 		= false;
+
+			int lastOrderNumber = 0;
+			while(rs.next()) {
+				int number = rs.getInt("OrderID");
+
+				//We have moved on to a new order
+				if (lastOrderNumber == 0) {
+
+					lastOrderNumber = number;
+					orderRestaurantName = rs.getString("Restaurant");
+					orderDate = rs.getString("Date");
+					orderCost = rs.getDouble("Cost");
+					orderTimePlacedInLocker = rs.getString("TimePlacedInLocker");
+				}
+
+				//orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory
+				//orderItemIngredients, orderItemGluten, orderItemVegetarian, orderItemVegan
+				orderItemID = rs.getInt("ItemID");
+				orderItemName = rs.getString("Item");
+				orderItemDescription = rs.getString("Description");
+				orderItemCost = rs.getDouble("ItemCost");
+				orderItemCategory = rs.getString("Category");
+				orderItemSubCategory = rs.getString("Sub-Category");
+				orderItemIngredients = rs.getString("Ingredients");
+				orderItemGluten = rs.getBoolean("Gluten-Free");
+				orderItemVegetarian = rs.getBoolean("Vegetarian");
+				orderItemVegan = rs.getBoolean("Vegan");
+
+				//									Restaurant, 			Item, 		Description, 			ItemCost, 	Category, 			Sub-Category, 			Ingredients, 		Gluten-Free, 		Vegetarian		 Vegan
+				Item item = new Item(orderItemID, orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
+				orderItems.add(item);
+			}
+			//int id, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker
+			order = new Order(orderID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker);
+
+			if (lastOrderNumber != 0) {
+				System.out.println("SUCCESS");
+				return order;
+			}
+			else {
+				System.out.println("FAILURE (NO ORDERS MATCH)");
+				return null;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println("Unable to create and execute statement:    ");
+			e.printStackTrace();
+			return null;
+		}
+	}
 }
