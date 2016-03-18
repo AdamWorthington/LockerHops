@@ -1,6 +1,32 @@
 package com.lockerhops.backend;
 
+/*
+ *  Database Tables:
+ *  -Orders
+ *  -Order_Items
+ *  -Restaurants
+ *  -Restaurant_Items
+ *
+ *  Check order is placed:
+    SELECT * FROM Orders
+    SELECT * FROM Order_Items
+ *
+ *  Check full Order information:
+    SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
+	FROM Orders
+	INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID
+	INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID
+	WHERE Orders.Restaurant = ? AND Orders.TimePickedUp IS NULL
 
+	NOTE: FOR ABOVE QUERY, SUBSTIUTE THE '?' IN THE LAST LINE FOR THE RESTAURANT NAME
+	 -SAMPLE DATA UNDER THE RESTAURANT "VANS" IS ALREADY IN THE DATABASE
+ *
+ *  Check Restaurants in DB:
+    SELECT * FROM Restaurants
+ *
+ *  Check Restaurant Items in DB:
+    SELECT * FROM Restaurants
+ */
 
 
 /*
