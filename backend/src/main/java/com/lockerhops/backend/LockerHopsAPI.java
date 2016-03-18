@@ -62,7 +62,7 @@ public class LockerHopsAPI {
         try {
             Order insert = new Order(restaurant, items, cost);
             insert.setID(id);
-            ret.setMyBoolean(insert.placeOrder());
+            //ret.setMyBoolean(insert.placeOrder());
         } catch (Exception e) {
 
         }
