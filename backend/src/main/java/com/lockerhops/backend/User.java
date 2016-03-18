@@ -138,4 +138,72 @@ public class User {
         System.out.println("FAILURE");
         return -1;
     }
+
+    /*
+     * Verifies if a user exists (verification of login)
+     * Returns the user's ID, so they can, in the future, check their orders
+     */
+    public int verifyUser() {
+        //PERFORM ARGUMENT VALIDATION HERE
+
+
+        //The prepared statement for this order
+        PreparedStatement	stmt	= null;
+
+        //The connection to the database
+        Connection			conn	= null;
+
+        //The SQL query to update this order's information
+        String 				query = "SELECT UserID FROM Users WHERE Username = ? AND Password = ?";
+
+        //Check we can get the driver
+        try {
+            System.out.print("Checking driver: ");
+            Class.forName(driver);
+            System.out.println("SUCCESS");
+        }
+        catch (ClassNotFoundException e) {
+            System.out.println("Cannot find the driver in the classpath:    ");
+            e.printStackTrace();
+            return -1;
+        }
+
+        try {
+            //Acquire a connection using the specified driver
+            System.out.print("Creating connection: ");
+            conn = DriverManager.getConnection(jdbcUrl);
+            System.out.println("SUCCESS");
+
+            //Prepare the statement based on the given query
+            System.out.print("Preparing statement: ");
+            stmt = conn.prepareStatement(query);
+            System.out.println("SUCCESS");
+
+            //Add values to the prepared statement
+            System.out.print("Setting statement values: ");
+            stmt.setString(1, this.username);
+            System.out.print("1 ");
+            stmt.setString(2, this.password);
+            System.out.println("2");
+
+            //Execute the statement to insert this order into the database
+            System.out.print("Executing statement: ");
+            ResultSet rs = stmt.executeQuery();
+
+            if (!rs.next()) {
+                System.out.println("No user found");
+                return -1;
+            }
+            else {
+                System.out.println("User Found");
+                rs.beforeFirst();
+                return rs.getInt("UserID");
+            }
+        }
+        catch(SQLException e) {
+            System.out.println("Unable to create and execute statement:    ");
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

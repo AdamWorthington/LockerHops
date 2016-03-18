@@ -466,10 +466,15 @@ public class Order {
 		}
 	}
 
-	public static Order getOrder(int id) {
+	/*
+	 * Get all orders for a particular user
+	 * Usually used by the users on their own app to see their own outstanding orders
+	 * Returns an arraylist of orders
+	 */
+	public static ArrayList<Order> getOrdersByUser(int userID) {
 		//PERFORM ARGUMENT VALIDATION HERE
-		if (id > 0) {
-			System.out.println("Invalid orderID (" + id + ") in getOrder");
+		if (userID < 0) {
+			System.out.println("Invalid user ID (" + userID + ") in getOrdersByUser");
 			return null;
 		}
 
@@ -487,12 +492,12 @@ public class Order {
 		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
 		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
 
-		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, Orders.UserID, Orders.TimePickedUp, " +
-						"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
-						"FROM Orders " +
-						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
-						"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
-						"WHERE Orders.OrderID = ?";
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, Orders.UserID, " +
+				"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
+				"FROM Orders " +
+				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+				"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
+				"WHERE Orders.UserID = ? AND Orders.TimePickedUp IS NULL";
 
 		//Check we can get the driver
 		try {
@@ -520,7 +525,149 @@ public class Order {
 			//Add values to the prepared statement
 			System.out.print("Setting statement values: ");
 			System.out.println("1");
+			stmt.setInt(1, userID);
+
+			//Execute the statement to insert this order into the database
+			System.out.print("Executing statement: ");
+			ResultSet rs = stmt.executeQuery();
+
+			ArrayList<Order> orderList = new ArrayList<Order>();
+
+
+			//SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker
+			//ri.Item, ri.Description, ri.ItemCost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
+			int 	orderID 				= -1;
+			int		orderUserID				= -1;
+			String 	orderRestaurantName 	= null;
+			String 	orderDate 				= null;
+			double 	orderCost 				= 0.00;
+			String 	orderTimePlacedInLocker = null;
+
+			ArrayList<Item> orderItems = new ArrayList<Item>();
+			int orderItemID 			= -1;
+			String orderItemName 		= null;
+			String orderItemDescription = null;
+			double orderItemCost 		= 0.00;
+			String orderItemCategory 	= null;
+			String orderItemSubCategory = null;
+			String orderItemIngredients = null;
+			boolean orderItemGluten 	= false;
+			boolean orderItemVegetarian = false;
+			boolean orderItemVegan 		= false;
+
+			int lastOrderNumber = 0;
+			while(rs.next()) {
+				int number = rs.getInt("OrderID");
+
+				//We have moved on to a new order
+				if (number != lastOrderNumber) {
+					if (lastOrderNumber != 0) {
+						//int id, String restaurant, double cost, Item[] items
+						Order order = new Order(orderID, orderUserID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker, false);
+						orderList.add(order);
+
+						orderItems = new ArrayList<Item>();
+					}
+
+					lastOrderNumber = number;
+					orderID = number;
+					orderUserID = rs.getInt("UserID");
+					orderRestaurantName = rs.getString("Restaurant");
+					orderDate = rs.getString("Date");
+					orderCost = rs.getDouble("Cost");
+					orderTimePlacedInLocker = rs.getString("TimePlacedInLocker");
+				}
+
+				//orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory
+				//orderItemIngredients, orderItemGluten, orderItemVegetarian, orderItemVegan
+				orderItemID = rs.getInt("ItemID");
+				orderItemName = rs.getString("Item");
+				orderItemDescription = rs.getString("Description");
+				orderItemCost = rs.getDouble("ItemCost");
+				orderItemCategory = rs.getString("Category");
+				orderItemSubCategory = rs.getString("Sub-Category");
+				orderItemIngredients = rs.getString("Ingredients");
+				orderItemGluten = rs.getBoolean("Gluten-Free");
+				orderItemVegetarian = rs.getBoolean("Vegetarian");
+				orderItemVegan = rs.getBoolean("Vegan");
+
+				//									Restaurant, 			Item, 		Description, 			ItemCost, 	Category, 			Sub-Category, 			Ingredients, 		Gluten-Free, 		Vegetarian		 Vegan
+				Item item = new Item(orderItemID, orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
+				orderItems.add(item);
+			}
+			if (orderList.size() != 0) {
+				System.out.println("SUCCESS");
+				return orderList;
+			}
+			else {
+				System.out.println("FAILURE: NO ORDERS MATCH");
+				return null;
+			}
+		}
+		catch(SQLException e) {
+			System.out.println("Unable to create and execute statement:    ");
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Order getOrder(int id, int userID) {
+		//PERFORM ARGUMENT VALIDATION HERE
+		if (id > 0) {
+			System.out.println("Invalid orderID (" + id + ") in getOrder");
+			return null;
+		}
+
+
+
+		//The prepared statement for this order
+		PreparedStatement stmt	= null;
+
+		//The connection to the database
+		Connection conn	= null;
+
+		//The SQL query to update this order's information
+		//String 	query = "SELECT * " +
+		//				"FROM Orders " +
+		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
+
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, Orders.UserID, Orders.TimePickedUp, " +
+						"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
+						"FROM Orders " +
+						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
+						"INNER JOIN Restaurant_Items ri ON Order_Items.ItemID = ri.ItemID " +
+						"WHERE Orders.OrderID = ? AND Orders.UserID = ?";
+
+		//Check we can get the driver
+		try {
+			System.out.print("Checking driver: ");
+			Class.forName(driver);
+			System.out.println("SUCCESS");
+		}
+		catch (ClassNotFoundException e) {
+			System.out.println("Cannot find the driver in the classpath:    ");
+			e.printStackTrace();
+			return null;
+		}
+
+		try {
+			//Acquire a connection using the specified driver
+			System.out.print("Creating connection: ");
+			conn = DriverManager.getConnection(jdbcUrl);
+			System.out.println("SUCCESS");
+
+			//Prepare the statement based on the given query
+			System.out.print("Preparing statement: ");
+			stmt = conn.prepareStatement(query);
+			System.out.println("SUCCESS");
+
+			//Add values to the prepared statement
+			System.out.print("Setting statement values: ");
 			stmt.setInt(1, id);
+			System.out.print("1 ");
+			stmt.setInt(2, userID);
+			System.out.println("2");
 
 			//Execute the statement to insert this order into the database
 			System.out.print("Executing statement: ");
