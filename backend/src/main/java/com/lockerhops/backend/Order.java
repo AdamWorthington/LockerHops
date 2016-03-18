@@ -13,16 +13,21 @@ public class Order {
 	int[]		items;			//Array of item id's in this order
 	double		cost;			//Dollar/cent cost of order (minimum $00.00, maximum $9999.99)
 
+	int 		userID;			//The ID of the user who placed this order
+
 	String				timePlacedInLocker;
 	ArrayList<Item>		orderItems;		//Used only when selecting the orders from the database
+	boolean				pickedUp;		//Has this order been picked up yet?
 	//If cost is ever going to be > 1,000,000 move this to BigDecimal
 
 	//Database information
 	static final String driver 		= DatabaseAccessors.driver;
 	static final String jdbcUrl 	= DatabaseAccessors.jdbcUrl;
 
-	public Order(String restaurant, int[] items, double cost) {
+	//Used when a user places an order
+	public Order(int userID, String restaurant, int[] items, double cost) {
 		this.id			= -1;
+		this.userID		= userID;
 		this.restaurant = restaurant;
 		this.items 		= items;
 		this.cost 		= cost;
@@ -30,13 +35,16 @@ public class Order {
 		this.timePlacedInLocker = null;
 	}
 
-	public Order (int id, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker) {
+	//Used when orders are being retrieved from the database
+	public Order (int id, int userID, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker, boolean pickedup) {
 		this.id 			= id;
+		this.userID			= userID;
 		this.restaurant 	= restaurant;
 		this.items 			= null;
 		this.cost 			= cost;
 		this.orderItems 	= items;
 		this.timePlacedInLocker = timePlacedInLocker;
+		this.pickedUp		= pickedup;
 	}
 
 	/*
@@ -339,7 +347,7 @@ public class Order {
 		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
 		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
 
-		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, " +
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, Orders.UserID, " +
 				"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
 						"FROM Orders " +
 						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
@@ -383,7 +391,8 @@ public class Order {
 
 			//SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker
 			//ri.Item, ri.Description, ri.ItemCost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
-			int 	orderID 				= 0;
+			int 	orderID 				= -1;
+			int		orderUserID				= -1;
 			String 	orderRestaurantName 	= null;
 			String 	orderDate 				= null;
 			double 	orderCost 				= 0.00;
@@ -409,13 +418,15 @@ public class Order {
 				if (number != lastOrderNumber) {
 					if (lastOrderNumber != 0) {
 						//int id, String restaurant, double cost, Item[] items
-						Order order = new Order(orderID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker);
+						Order order = new Order(orderID, orderUserID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker, false);
 						orderList.add(order);
 
 						orderItems = new ArrayList<Item>();
 					}
 
 					lastOrderNumber = number;
+					orderID = number;
+					orderUserID = rs.getInt("UserID");
 					orderRestaurantName = rs.getString("Restaurant");
 					orderDate = rs.getString("Date");
 					orderCost = rs.getDouble("Cost");
@@ -476,7 +487,7 @@ public class Order {
 		//				"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
 		//				"WHERE Restaurant = ? AND TimePickedUp IS NULL";
 
-		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, " +
+		String query =  "SELECT Orders.OrderID, Orders.Restaurant, Orders.Date, Orders.Cost, Orders.TimePlacedInLocker, Orders.UserID, Orders.TimePickedUp, " +
 						"			ri.ItemID, ri.Item, ri.Description, ri.Cost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan " +
 						"FROM Orders " +
 						"INNER JOIN Order_Items ON Orders.OrderID = Order_Items.OrderID " +
@@ -519,10 +530,12 @@ public class Order {
 			//ri.Item, ri.Description, ri.ItemCost, ri.Category, ri.`Sub-Category`, ri.Ingredients, ri.`Gluten-Free`, ri.Vegetarian, ri.Vegan
 			Order 	order 					= null;
 			int 	orderID 				= 0;
+			int 	orderUserID 			= 0;
 			String 	orderRestaurantName 	= null;
 			String 	orderDate 				= null;
 			double 	orderCost 				= 0.00;
 			String 	orderTimePlacedInLocker = null;
+			boolean orderPickedUp			= false;
 
 			ArrayList<Item> orderItems = new ArrayList<Item>();
 			int orderItemID 			= -1;
@@ -544,10 +557,21 @@ public class Order {
 				if (lastOrderNumber == 0) {
 
 					lastOrderNumber = number;
+					orderID = number;
+					orderUserID = rs.getInt("UserID");
 					orderRestaurantName = rs.getString("Restaurant");
 					orderDate = rs.getString("Date");
 					orderCost = rs.getDouble("Cost");
 					orderTimePlacedInLocker = rs.getString("TimePlacedInLocker");
+
+					String orderPickUpTime = rs.getString("TimePickedUp");
+					if (orderPickUpTime == null || orderPickUpTime.equals("")) {
+						orderPickedUp = false;
+					}
+					else {
+						orderPickedUp = true;
+					}
+
 				}
 
 				//orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory
@@ -567,8 +591,8 @@ public class Order {
 				Item item = new Item(orderItemID, orderRestaurantName, orderItemName, orderItemDescription, orderItemCost, orderItemCategory, orderItemSubCategory, orderItemIngredients.split(" "), orderItemGluten, orderItemVegetarian, orderItemVegan);
 				orderItems.add(item);
 			}
-			//int id, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker
-			order = new Order(orderID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker);
+			//int id, int userID, String restaurant, double cost, ArrayList<Item> items, String timePlacedInLocker, boolean pickedup
+			order = new Order(orderID, orderUserID, orderRestaurantName, orderCost, orderItems, orderTimePlacedInLocker, orderPickedUp);
 
 			if (lastOrderNumber != 0) {
 				System.out.println("SUCCESS");

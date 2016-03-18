@@ -3,6 +3,7 @@ package com.lockerhops.backend;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -56,19 +57,19 @@ public class User {
         this.userID = userID;
     }
 
-    public static boolean newUser(String username, String password, String email) {
+    public static int newUser(String username, String password, String email) {
         //PERFORM ARGUMENT VALIDATION HERE
         if(!DatabaseAccessors.stringIsValid(username)) {
             System.out.println("Invalid username in newUser");
-            return false;
+            return -1;
         }
         if(!DatabaseAccessors.stringIsValid(password)) {
             System.out.println("Invalid password in newUser");
-            return false;
+            return -1;
         }
         if(!DatabaseAccessors.stringIsValid(email)) {
             System.out.println("Invalid email in newUser");
-            return false;
+            return -1;
         }
 
 
@@ -90,7 +91,7 @@ public class User {
         catch (ClassNotFoundException e) {
             System.out.println("Cannot find the driver in the classpath:    ");
             e.printStackTrace();
-            return false;
+            return -1;
         }
 
         try {
@@ -101,7 +102,7 @@ public class User {
 
             //Prepare the statement based on the given query
             System.out.print("Preparing statement: ");
-            stmt = conn.prepareStatement(query);
+            stmt = conn.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
             System.out.println("SUCCESS");
 
             //Add values to the prepared statement
@@ -115,22 +116,26 @@ public class User {
 
             //Execute the statement to insert this order into the database
             System.out.print("Executing statement: ");
-            int ret = stmt.executeUpdate();
+            ResultSet rs = stmt.getGeneratedKeys();
+            rs.next();
+
+
+            int ret = rs.getInt(1);
 
             //
-            if (ret != 0) {
+            if (ret > 0) {
                 System.out.println("SUCCESS");
-                return true;
+                return ret;
             }
         }
         catch(SQLException e) {
             System.out.println("Unable to create and execute statement:    ");
             e.printStackTrace();
-            return false;
+            return -1;
         }
 
         //This is only reached if there was no value assigned to the insertion, meaning it failed, or an exception occured
         System.out.println("FAILURE");
-        return false;
+        return -1;
     }
 }
