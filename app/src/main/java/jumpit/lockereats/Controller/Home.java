@@ -1,11 +1,17 @@
 package jumpit.lockereats.Controller;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -17,8 +23,15 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+import com.lockerhops.backend.lockerHopsAPI.LockerHopsAPI;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import jumpit.lockereats.Core.Adapters.RestaurantArrayAdapter;
 import jumpit.lockereats.Core.Singleton;
@@ -38,6 +51,9 @@ public class Home extends AppCompatActivity implements GoogleApiClient.OnConnect
     private GridView restaurantsGrid;
 
     private GoogleApiClient mGoogleApiClient;
+    private RestaurantArrayAdapter listAdapter;
+    private LinearLayoutManager llm;
+    private RecyclerView listMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -51,7 +67,7 @@ public class Home extends AppCompatActivity implements GoogleApiClient.OnConnect
         setSupportActionBar(myToolbar);
 
         /*Get the list of restaurants*/
-        restaurants = Singleton.getInstance().getRestaurants();
+        new GetRestaurantsTask().execute();
 
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -69,12 +85,10 @@ public class Home extends AppCompatActivity implements GoogleApiClient.OnConnect
         /*
         Hook up the grid with the restaurants data structure list and populate view.
          */
-        RecyclerView listMenu = (RecyclerView) findViewById(R.id.restuarantGridView);
+        listMenu = (RecyclerView) findViewById(R.id.restuarantGridView);
         listMenu.setHasFixedSize(true);
-        LinearLayoutManager llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        llm = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         listMenu.setLayoutManager(llm);
-        RestaurantArrayAdapter listAdapter = new RestaurantArrayAdapter(this, restaurants);
-        listMenu.setAdapter(listAdapter);
     }
 
     /*Google API calls failed when logging in*/
@@ -135,4 +149,82 @@ public class Home extends AppCompatActivity implements GoogleApiClient.OnConnect
     {
 
     }
+
+    private class GetRestaurantsTask extends AsyncTask<Object, Void, List<Restaurant>>
+    {
+        private LockerHopsAPI myApiService = null;
+
+        private ProgressDialog dialog = new ProgressDialog(Home.this);
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("Fetching restaurants nearby");
+            this.dialog.show();
+        }
+
+        @Override
+        protected List<jumpit.lockereats.Model.Restaurant> doInBackground(Object... params)
+        {
+            if(myApiService == null)
+            {  // Only do this once
+                LockerHopsAPI.Builder builder = new LockerHopsAPI.Builder(AndroidHttp.newCompatibleTransport(),
+                        new AndroidJsonFactory(), null)
+                        // options for running against local devappserver
+                        // - 10.0.2.2 is localhost's IP address in Android emulator
+                        // - turn off compression when running against local devappserver
+                        .setRootUrl("http://10.0.2.2:8080/_ah/api/")
+                        .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
+                            @Override
+                            public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
+                                abstractGoogleClientRequest.setDisableGZipContent(true);
+                            }
+                        });
+                // end options for devappserver
+
+                myApiService = builder.build();
+            }
+
+            try {
+                List<com.lockerhops.backend.lockerHopsAPI.model.Restaurant> restaurants = myApiService.restaurant().getAllRestaurants().execute().getItems();
+                return jumpit.lockereats.Model.Restaurant.convert(restaurants);
+            } catch (IOException e) {
+                Log.d("Fetch Restaurant", e.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<jumpit.lockereats.Model.Restaurant> result) {
+            if (dialog.isShowing()) {
+                dialog.dismiss();
+            }
+
+            if(result != null)
+            {
+                listAdapter = new RestaurantArrayAdapter(Home.this, result);
+                listMenu.setAdapter(listAdapter);
+            }
+            else
+            {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Home.this);
+
+                // set title
+
+                alertDialogBuilder.setTitle("An error occured");
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage("We were unable to fetch any restaurants. Close the app and try again later.")
+                        .setPositiveButton("Okay", null);
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+
+            }
+        }
+    }
+
 }

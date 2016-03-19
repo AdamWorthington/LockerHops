@@ -10,6 +10,7 @@ import jumpit.lockereats.Model.Restaurant;
 import jumpit.lockereats.Model.StoreCategory;
 import jumpit.lockereats.Model.StoreItem;
 import jumpit.lockereats.Model.StoreMenu;
+import jumpit.lockereats.Tasks.GetRestaurantsTask;
 
 /**
  * Created by cdwil on 12/22/2015.
@@ -85,6 +86,10 @@ public class Singleton
 
     public ArrayList<Restaurant> getRestaurants()
     {
+        if(restaurants == null)
+        {
+            new GetRestaurantsTask().execute();
+        }
         return restaurants;
     }
 

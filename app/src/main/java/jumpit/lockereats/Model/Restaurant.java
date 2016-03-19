@@ -3,7 +3,9 @@ package jumpit.lockereats.Model;
 import android.graphics.Bitmap;
 import android.location.Location;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.List;
 
 /**
  * Created by cdwil on 12/8/2015.
@@ -27,6 +29,34 @@ public class Restaurant
     {
         return name;
     }
+
+    /*
+    Phone number of the restaurant
+     */
+    private String phone;
+    public String getPhone()
+    {
+        return phone;
+    }
+
+    /*
+    Web address of the restaurant
+     */
+    private String website;
+    public String getWebsite()
+    {
+        return website;
+    }
+
+    /*
+    Categorical type of restaurant
+     */
+    private String type;
+    public String getType()
+    {
+        return type;
+    }
+
 
     /*
     GPS location of the store
@@ -69,5 +99,32 @@ public class Restaurant
         this.hoursOfOperation = hoursOfOperation;
         this.storeMenu = storeMenu;
         this.restaurantId = 1;
+    }
+
+    public Restaurant(String name, String address, String phone, String website, String type)
+    {
+        this.name = name;
+        this.streetAddress = address;
+        this.phone = phone;
+        this.website = website;
+        this.type = type;
+    }
+
+    public static ArrayList<Restaurant> convert(List<com.lockerhops.backend.lockerHopsAPI.model.Restaurant> from)
+    {
+        ArrayList<Restaurant> to = new ArrayList<>();
+        for(com.lockerhops.backend.lockerHopsAPI.model.Restaurant r : from)
+        {
+            String name = r.getName();
+            String address = r.getAddress();
+            String phone = r.getPhone();
+            String website = r.getWebsite();
+            String type = r.getType();
+
+            Restaurant copy = new Restaurant(name, address, phone, website, type);
+            to.add(copy);
+        }
+
+        return to;
     }
 }
