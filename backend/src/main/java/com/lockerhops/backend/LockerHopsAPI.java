@@ -60,9 +60,8 @@ public class LockerHopsAPI {
     public MyBean placeOrder(@Named("id") Integer id, @Named("restaurant") String restaurant, @Named("items") int[] items, @Named("cost") Double cost) throws NotFoundException {
         MyBean ret = new MyBean();
         try {
-            Order insert = new Order(restaurant, items, cost);
-            insert.setID(id);
-            //ret.setMyBoolean(insert.placeOrder());
+            Order insert = new Order(id, restaurant, items, cost);
+            ret.setMyInt(insert.placeOrder());
         } catch (Exception e) {
 
         }

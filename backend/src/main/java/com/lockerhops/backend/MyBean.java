@@ -9,6 +9,12 @@ public class MyBean {
 
     private Boolean myBoolean;
 
+    private int myInt;
+
+    public int getMyInt() { return myInt; }
+
+    public void setMyInt(int set) { myInt = set; }
+
     public Boolean getMyBoolean() { return myBoolean; }
 
     public void setMyBoolean(Boolean set) { myBoolean = set; }

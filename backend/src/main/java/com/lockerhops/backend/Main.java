@@ -1,4 +1,5 @@
 //MAIN IS CURRENTLY FOR TESTING PURPOSES ONLY!!!!
+/*
 
 package com.lockerhops.backend;
 
@@ -6,7 +7,7 @@ import java.util.ArrayList;
 
 public class Main {
 	public static void main(String[] args) {
-		/*if (testOrderPlacement()) {
+		if (testOrderPlacement()) {
 			System.out.println("+----------------------------+");
 			System.out.println("| ORDER PLACEMENT SUCCESSFUL |");
 			System.out.println("+----------------------------+");
@@ -28,7 +29,7 @@ public class Main {
 			System.out.println("+------------------------+");
 			System.out.println("| RESTAURANT GET FAILURE |");
 			System.out.println("+------------------------+");
-		}*/
+		}
 
 		if (testItemPlacement()) {
 			System.out.println("+---------------------------+");
@@ -107,3 +108,4 @@ public class Main {
 		return false;
 	}
 }
+*/
